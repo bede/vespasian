@@ -3,13 +3,18 @@ import argh
 
 from Bio import SeqIO
 
+from vespa import vespa
 
-def infer_genetree():
-    pass
+
+def infer_genetree(alignment: 'path to directory containing gene families',
+                   tree: 'species tree in newick format',
+                   output):
+    vespa.infer_genetree(alignment, tree, output)
+
 
 def codeml_setup(input: 'path to directory containing gene families',
-                 branch_file: 'file containing branches to label'):
-    print('Done!')
+                 branches: 'path to file containing branches to be labelled as foreground lineages'):
+    pass
 
 
 def main():

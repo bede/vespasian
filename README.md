@@ -1,1 +1,1 @@
-# VESPAlite
+# vespa-slim

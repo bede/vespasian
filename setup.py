@@ -9,7 +9,7 @@ __version__ = re.search(r'__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
 
 
 if sys.version_info[0] < 3:
-      sys.exit('Requires Python >= 3.5')
+      sys.exit('Requires Python >= 3(.5)')
 
 
 CLASSIFIERS = ['Environment :: Console',
@@ -33,5 +33,7 @@ setup(name = 'vespa-slim',
       license = 'LICENSE',
       packages=['vespa'],
       zip_safe=True,
-      install_requires=['biopython>=1.68'],
+      install_requires=['biopython>=1.68', 'treeswift>=1.0.56'],
       entry_points = {'console_scripts':['vespa=vespa.cli:main']})
+
+# MAFFT, Muscle, IQ-TREE

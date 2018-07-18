@@ -6,10 +6,10 @@ from Bio import SeqIO
 from vespa import vespa
 
 
-def infer_genetree(alignment: 'path to directory containing gene families',
-                   tree: 'species tree in newick format',
-                   output):
-    vespa.infer_genetree(alignment, tree, output)
+def infer_gene_trees(input_path: 'path to directory containing gene families',
+                    tree_path: 'species tree in newick format',
+                    output_path):
+    vespa.infer_gene_trees(input_path, tree_path, output_path)
 
 
 def codeml_setup(input: 'path to directory containing gene families',
@@ -19,7 +19,7 @@ def codeml_setup(input: 'path to directory containing gene families',
 
 def main():
     parser = argh.ArghParser()
-    parser.add_commands([infer_genetree,
+    parser.add_commands([infer_gene_trees,
                          codeml_setup])
     parser.dispatch()
 

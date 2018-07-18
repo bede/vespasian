@@ -1,17 +1,37 @@
 import os
 import sys
 
+from pathlib import Path
+
 import treeswift
 
 from Bio import SeqIO
 
 
-def infer_genetree(alignment_path, tree_path, output_path):
+# Project dir structure?
+#   alignments
+#   gene_trees
+
+
+def infer_gene_tree(alignment_path, tree_path, output_path):
     records = SeqIO.parse(alignment_path, 'fasta')
     records_headers = set((r.id.partition('|')[0] for r in records))
     species_tree = treeswift.read_tree_newick(tree_path)
     gene_tree = species_tree.extract_tree_with(records_headers)
     gene_tree.write_tree_newick(output_path)
+
+
+def infer_gene_trees(input_path, tree_path, output_path):
+    family_paths = [f'{input_path}/{fn}' for fn in os.listdir(input_path)
+                    if fn.endswith(('.fa', '.fasta'))]
+    families_paths = {Path(a).stem: a for a in family_paths}
+    for family, path in families_paths.items():
+        # family_out_path = str(Path(output_path)/family)
+        os.makedirs(output_path, exist_ok=True)
+        infer_gene_tree(path, tree_path, f'{output_path}/{family}.nwk')
+
+
+
 
 
 

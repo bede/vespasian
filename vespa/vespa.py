@@ -8,12 +8,19 @@ import treeswift
 from Bio import SeqIO
 
 
+
+for family in families:
+    gene_tree = infer_gene_tree(family)
+    for 
+
 # Project dir structure?
 #   alignments
 #   gene_trees
+#   codeml_workspace
 
 
 def infer_gene_tree(alignment_path, tree_path, output_path):
+    '''Build gene tree by pruning species tree to contain only nodes present in alignment'''
     records = SeqIO.parse(alignment_path, 'fasta')
     records_headers = set((r.id.partition('|')[0] for r in records))
     species_tree = treeswift.read_tree_newick(tree_path)
@@ -22,6 +29,7 @@ def infer_gene_tree(alignment_path, tree_path, output_path):
 
 
 def infer_gene_trees(input_path, tree_path, output_path):
+    '''Build gene trees for a directory containing gene family alignments'''
     family_paths = [f'{input_path}/{fn}' for fn in os.listdir(input_path)
                     if fn.endswith(('.fa', '.fasta'))]
     families_paths = {Path(a).stem: a for a in family_paths}
@@ -32,23 +40,8 @@ def infer_gene_trees(input_path, tree_path, output_path):
 
 
 
-
-
-
-# family_paths = [fn for fn in os.listdir(root_path) if not fn.startswith('.')]
-# families_paths = {fn.partition('|')[0]: fn for fn in families_paths}
-# models_dirs_tl = {m: f'{codeml_path}/{m}' for m in models_presets.keys()}
-
-
-
-def codeml_setup():
-    pass
-
-
-
-
-def codeml_setup(alignment_path, output_path):
-    '''Create codeml workspaces for suite of site and branch-site models for a gene family'''
+def codeml_setup_family(alignment_path, output_path):
+    '''Create codeml workspaces for suite of site and branch-site models for single gene family'''
     
     class ControlFile():
         '''Create the required config to generate a CodeML control (.ctl) file'''
@@ -91,10 +84,8 @@ def codeml_setup(alignment_path, output_path):
             with open(path, 'w+') as ctl_fh:
                 ctl_fh.write(ctl)
 
-
     models_presets = {
         'm0': {'model': 0, 'NSsites': 0, 'fix_omega': 0, 'ncatG': 1},
-        '2ratios': {'model': 2, 'NSsites': 0, 'fix_omega': 0, 'ncatG': 2},
         'm1Neutral': {'model': 0, 'NSsites': 1, 'fix_omega': 0, 'ncatG': 2},
         'm2Selection': {'model': 0, 'NSsites': 2, 'fix_omega': 0, 'ncatG': 3},
         'm3Discrtk2': {'model': 0, 'NSsites': 3, 'fix_omega': 0, 'ncatG': 2},
@@ -106,9 +97,10 @@ def codeml_setup(alignment_path, output_path):
         'modelAnull': {'model': 2, 'NSsites': 2, 'fix_omega': 1, 'ncatG': 4, 'omega': 1},
     }
 
+
+
     records = SeqIO.parse(alignment_path, 'fasta')
     record_ids = {r.id for r in records}  # Set comprehension
-
 
     for model, presets in models_presets.items():
         if model in models_with_fixed_omega:  # m8a and modelAnull
@@ -120,6 +112,27 @@ def codeml_setup(alignment_path, output_path):
                 os.makedirs(f'{codeml_path}/{model}/Omega{omega}')
                 ControlFile(model, **presets).write(f'{codeml_path}/{model}/Omega{omega}/codeml.ctl')
 
+
+def label_branch():
+    pass
+
+
+def label_branches(input_path, tree_path, output_path):
+    species_tree = treeswift.read_tree_newick(tree_path)
+    for name, children in branches.items():
+        # tree = treeswift.read_tree_newick('(Cten,Tcom,(((((lung,(lati,(shar,(lamp,(taki,dani))))),((plat,(elep,(huma,cows))),((turt,(zebr,chic)),(cobr,anol)))),((hyno,((newt,cyno),(axol,atig))),(xeno,(nano,(scin,(dend,(pris,(rani,(amee,allo))))))))),Rbiv),(Muni,Mder)));')
+        # print('name:', name)
+        if children:  # Has children
+            mrca = tree.mrca(set(children))  # Fetch MRCA
+            mrca.label = "'#1'"
+            # print(tree.newick(), '\n')
+        
+        else:  # Childless, assumed to be leaf node?? Check this! Could be internal node?
+            pass
+
+
+def codeml_setup_families():
+    pass
 
 
 
@@ -170,7 +183,6 @@ def workspace_setup(family_path):
 
     models_presets = {
         'm0': {'model': 0, 'NSsites': 0, 'fix_omega': 0, 'ncatG': 1},
-        '2ratios': {'model': 2, 'NSsites': 0, 'fix_omega': 0, 'ncatG': 2},
         'm1Neutral': {'model': 0, 'NSsites': 1, 'fix_omega': 0, 'ncatG': 2},
         'm2Selection': {'model': 0, 'NSsites': 2, 'fix_omega': 0, 'ncatG': 3},
         'm3Discrtk2': {'model': 0, 'NSsites': 3, 'fix_omega': 0, 'ncatG': 2},

@@ -7,8 +7,8 @@ from vespa import vespa
 
 
 def infer_gene_trees(input_path: 'path to directory containing gene families',
-                    tree_path: 'species tree in newick format',
-                    output_path):
+                     tree_path: 'species tree in newick format',
+                     output_path):
     vespa.infer_gene_trees(input_path, tree_path, output_path)
 
 

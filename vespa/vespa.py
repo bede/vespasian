@@ -152,16 +152,17 @@ def setup_site_models(family_name, family_path, alignment_path, gene_tree_path):
         'modelAnull': [1]
     }
 
-    alignment = AlignIO.parse(alignment_path, 'fasta')
-
+    alignment = list(AlignIO.parse(alignment_path, 'fasta'))
+    AlignIO.write(alignment, f'{family_path}/align.phy', 'phylip-relaxed')
+    shutil.copy(gene_tree_path, f'{family_path}/tree.nwk')
     for model, params in models.items():
         for omega in models_omega[model]:
             params['omega'] = omega
             run_dir = f'{family_path}/{family_name}/{model}/Omega{omega}'
             os.makedirs(run_dir, exist_ok=True)
-            shutil.copy(gene_tree_path, run_dir)
-            AlignIO.write(alignment, f'{run_dir}/align.phy', 'phylip-relaxed')  # Relaxed format permits long names
-            ControlFile(model, **params).write(f'{family_path}/{family_name}/{model}/Omega{omega}/codeml.ctl')
+            shutil.copy(f'{family_path}/tree.nwk', run_dir)
+            shutil.copy(f'{family_path}/align.phy', f'{run_dir}/align.phy')
+            ControlFile(model, **params).write(f'{run_dir}/codeml.ctl')
 
 
 def setup_branch_site_models(family_name, family_path, alignment_path, gene_tree_path, branches):
@@ -176,7 +177,10 @@ def setup_branch_site_models(family_name, family_path, alignment_path, gene_tree
         'modelAnull': [1]
     }
 
-    alignment = AlignIO.parse(alignment_path, 'fasta')
+    # Write shared resources to family root 
+    alignment = list(AlignIO.parse(alignment_path, 'fasta'))
+    AlignIO.write(alignment, f'{family_path}/align.phy', 'phylip-relaxed')
+    shutil.copy(gene_tree_path, f'{family_path}/tree.nwk')
 
     if branches:
         for branch, leaves in branches.items():
@@ -186,8 +190,8 @@ def setup_branch_site_models(family_name, family_path, alignment_path, gene_tree
                     params['omega'] = omega
                     run_dir = f'{branch_path}/{model}/Omega{omega}'
                     os.makedirs(run_dir, exist_ok=True)
-                    shutil.copy(gene_tree_path, run_dir)
-                    AlignIO.write(alignment, f'{run_dir}/align.phy', 'phylip-relaxed')  # Relaxed format permits long names
+                    shutil.copy(f'{family_path}/tree.nwk', run_dir)
+                    shutil.copy(f'{family_path}/align.phy', f'{run_dir}/align.phy')
                     ControlFile(model, **params).write(f'{run_dir}/codeml.ctl')
 
                  

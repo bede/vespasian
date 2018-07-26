@@ -97,17 +97,16 @@ def parse_branch_file(branch_file):
     return branches
 
 
-def label_branch(tree_path, leaf_labels):
-    '''Return Tree codeml labelled tree for a given family'''
-    species_tree = treeswift.read_tree_newick(tree_path)
-    for branch_name, children in branches.items():
-        tree = treeswift.read_tree_newick(tree_path)
-        if children:  # Has children
-            mrca = tree.mrca(set(children))  # Fetch MRCA
-            mrca.label = "'#1'"
-            return Tree
-        else:  # Childless, assumed to be leaf node?? Check this! Could be internal node?
-            raise Exception('Unable to label branch')
+def label_branch(tree_path, branch_label, leaf_labels):
+    '''Return Tree with codeml labelled ancestral branch or leaf node if children absent'''
+    tree = treeswift.read_tree_newick(tree_path)
+    if leaf_labels:  # internal node
+        leaf_labels = set(leaf_labels)
+        mrca = tree.mrca(leaf_labels)  # fetch MRCA, throws RunTimeError if impossible
+        mrca.label = "'#1'"
+    else:  # leaf node
+        tree.label_to_node()[branch_label].label += '#1'  # Throws KeyError if tip absent
+    return tree
 
 
 def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir):
@@ -185,12 +184,18 @@ def setup_branch_site_models(family_name, family_path, alignment_path, gene_tree
     if branches:
         for branch, leaves in branches.items():
             branch_path = f'{family_path}/{family_name}_{branch}'
+            try:
+                labelled_tree = label_branch(f'{family_path}/tree.nwk', branch, leaves)
+            except (KeyError, RuntimeError):  # KeyError: tip absent, RuntimeError: no MRCA
+                continue
             for model, params in models.items():
                 for omega in models_omega[model]:
                     params['omega'] = omega
                     run_dir = f'{branch_path}/{model}/Omega{omega}'
                     os.makedirs(run_dir, exist_ok=True)
-                    shutil.copy(f'{family_path}/tree.nwk', run_dir)
+                    labelled_tree.write_tree_newick(f'{run_dir}/tree.nwk')
+                    # label_branch(f'{family_path}/tree.nwk', leaves).write_tree_newick(f'{run_dir}/tree.nwk')
+                    # shutil.copy(f'{family_path}/tree.nwk', run_dir)
                     shutil.copy(f'{family_path}/align.phy', f'{run_dir}/align.phy')
                     ControlFile(model, **params).write(f'{run_dir}/codeml.ctl')
 

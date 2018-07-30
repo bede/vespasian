@@ -10,10 +10,23 @@ import treeswift
 from Bio import AlignIO, SeqIO
 
 
-# Project dir structure?
-#   alignments
-#   gene_trees
-#   codeml_workspace
+def write_phylip_from_fasta(alignment_path, path, name_len=40):
+    '''
+    Write codeml compatible sequential Phylip from a *list* of AlignIO records.
+    AlignIO.write() formats all incompatible with codeml :'(
+    '''
+    alignment = list(AlignIO.parse(alignment_path, 'fasta'))[0]
+    alignment_len = next(AlignIO.parse(alignment_path, 'fasta')).get_alignment_length()
+    num_records = len(alignment)
+    
+    phylip_lines = [f' {num_records} {alignment_len}']
+    for record in alignment:
+        name_padding = name_len - len(record.id)
+        phylip_lines.append(f'{record.id: <{name_len}}  {record.seq}')
+        # print(f'{record.id: <{name_len}}  {record.seq}'.strip())
+    
+    with open(path, 'w+') as phylip_fh:
+        phylip_fh.write('\n'.join(phylip_lines))
 
 
 class ControlFile():
@@ -149,8 +162,9 @@ def setup_site_models(family_name, family_path, alignment_path, gene_tree_path):
         'm8a': [1]
     }
 
-    alignment = list(AlignIO.parse(alignment_path, 'fasta'))
-    AlignIO.write(alignment, f'{family_path}/align.phy', 'phylip-relaxed')
+    # alignment = AlignIO.parse(alignment_path, 'fasta')
+    # AlignIO.write(alignment, f'{family_path}/align.phy', 'phylip-relaxed')
+    write_phylip_from_fasta(alignment_path, f'{family_path}/align.phy')
     shutil.copy(gene_tree_path, f'{family_path}/tree.nwk')
     for model, params in models.items():
         for omega in models_omega[model]:
@@ -175,8 +189,9 @@ def setup_branch_site_models(family_name, family_path, alignment_path, gene_tree
     }
 
     # Write shared resources to family root 
-    alignment = list(AlignIO.parse(alignment_path, 'fasta'))
-    AlignIO.write(alignment, f'{family_path}/align.phy', 'phylip-relaxed')
+    # alignment = AlignIO.parse(alignment_path, 'fasta')
+    write_phylip_from_fasta(alignment_path, f'{family_path}/align.phy')
+    # AlignIO.write(alignment, f'{family_path}/align.phy', 'phylip-relaxed')
     shutil.copy(gene_tree_path, f'{family_path}/tree.nwk')
 
     if branches:
@@ -200,7 +215,7 @@ def setup_branch_site_models(family_name, family_path, alignment_path, gene_tree
                  
 
 
-def fasta_to_phylip(input_path, output_path):
-    alignment = AlignIO.parse(input_path, 'fasta')
-    AlignIO.write(alignment, f'{output_path}/align.phy', 'phylip-relaxed')
+# def fasta_to_phylip(input_path, output_path):
+#     alignment = AlignIO.parse(input_path, 'fasta')
+#     AlignIO.write(alignment, f'{output_path}/align.phy', 'phylip-relaxed')
 

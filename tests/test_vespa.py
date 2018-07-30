@@ -1,15 +1,29 @@
 import os
 import sys
-
 import subprocess
 
-from Bio import SeqIO
 
-subprocess.run('vespa infer-gene-trees'
-			   ' /Users/bede/Research/Tools/vespa-slim/tests/data/frog_families'
-			   ' /Users/bede/Research/Tools/vespa-slim/tests/data/tree2.tre'
-			   ' ~/Desktop/out')
+cwd = '/Users/bede/Research/Tools/vespa-slim/tests/data'
 
-# vespa infer-gene-trees /Users/bede/Research/Tools/vespa-slim/tests/data/frog_families /Users/bede/Research/Tools/vespa-slim/tests/data/tree2.tre ~/Desktop/out
+def run(cmd, cwd=cwd):
+    return subprocess.run(cmd,
+                          cwd=cwd,
+                          shell=True,
+                          check=True,
+                          universal_newlines=True,
+                          stdout=subprocess.PIPE,
+                          stderr=subprocess.PIPE)
 
-# vespa codeml-setup /Users/bede/Research/Tools/vespa-slim/tests/data/frog_families /Users/bede/Desktop/out /Users/bede/Research/Notebooks/res/2018-07-18/branches.yaml /Users/bede/Desktop/outty
+
+def setup_pipeline():
+    run_cmd('rm -rf gene-trees codeml', cwd=cwd)  # Start afresh
+
+
+def test_infer_genetree():
+    run_cmd = run('vespa infer-gene-trees frog-families tree2.tre gene-trees', cwd=cwd)
+    print(run_cmd.stdout, run_cmd.stderr)
+
+
+def test_codeml_setup():
+    run_cmd = run('vespa codeml-setup frog-families gene-trees branches.yaml codeml', cwd=cwd)
+    print(run_cmd.stdout, run_cmd.stderr)

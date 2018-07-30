@@ -105,7 +105,7 @@ def label_branch(tree_path, branch_label, leaf_labels):
         mrca = tree.mrca(leaf_labels)  # fetch MRCA, throws RunTimeError if impossible
         mrca.label = "'#1'"
     else:  # leaf node
-        tree.label_to_node()[branch_label].label += '#1'  # Throws KeyError if tip absent
+        tree.label_to_node()[branch_label].label += '#1'  # Throws KeyError if leaf absent
     return tree
 
 
@@ -146,9 +146,7 @@ def setup_site_models(family_name, family_path, alignment_path, gene_tree_path):
         'm3Discrtk3': [0, 1, 2, 10],
         'm7': [0, 1, 2, 10],
         'm8': [0, 1, 2, 10],
-        'm8a': [1],
-        'modelA': [0, 1, 2, 10],
-        'modelAnull': [1]
+        'm8a': [1]
     }
 
     alignment = list(AlignIO.parse(alignment_path, 'fasta'))

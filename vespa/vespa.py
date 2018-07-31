@@ -21,8 +21,11 @@ def write_phylip_from_fasta(alignment_path, path, name_len=40):
     
     phylip_lines = [f' {num_records} {alignment_len}']
     for record in alignment:
+        counter = 0
         name_padding = name_len - len(record.id)
-        phylip_lines.append(f'{record.id: <{name_len}}  {record.seq}')
+        phylip_lines.append(f'{record.id: <{name_len}}  {record.seq[:59]}')
+        while True:
+             phylip_lines.append()
         # print(f'{record.id: <{name_len}}  {record.seq}'.strip())
     
     with open(path, 'w+') as phylip_fh:
@@ -71,19 +74,20 @@ class ControlFile():
             ctl_fh.write(ctl)
 
 
-def gene_tree(alignment_path, tree_path, output_path):
-    '''Build gene tree by pruning species tree to contain only nodes present in alignment'''
-    records = SeqIO.parse(alignment_path, 'fasta')
-    records_headers = set((r.id.partition('|')[0] for r in records))
-    species_tree = treeswift.read_tree_newick(tree_path)
-    gene_tree = species_tree.extract_tree_with(records_headers)
-    return gene_tree
+# def gene_tree(alignment_path, tree_path, output_path):
+#     '''Build gene tree by pruning species tree to contain only nodes present in alignment'''
+#     records = SeqIO.parse(alignment_path, 'fasta')
+#     records_headers = set((r.id.partition('|')[0] for r in records))
+#     species_tree = treeswift.read_tree_newick(tree_path)
+#     gene_tree = species_tree.extract_tree_with(records_headers)
+#     return gene_tree
 
 
 def infer_gene_tree(alignment_path, tree_path, output_path):
     '''Build gene tree by pruning species tree to contain only nodes present in alignment'''
     records = SeqIO.parse(alignment_path, 'fasta')
     records_headers = set((r.id.partition('|')[0] for r in records))
+    # records_headers = set((r.id for r in records))
     species_tree = treeswift.read_tree_newick(tree_path)
     gene_tree = species_tree.extract_tree_with(records_headers)
     gene_tree.write_tree_newick(output_path)
@@ -162,9 +166,13 @@ def setup_site_models(family_name, family_path, alignment_path, gene_tree_path):
         'm8a': [1]
     }
 
-    # alignment = AlignIO.parse(alignment_path, 'fasta')
-    # AlignIO.write(alignment, f'{family_path}/align.phy', 'phylip-relaxed')
-    write_phylip_from_fasta(alignment_path, f'{family_path}/align.phy')
+    alignment = list(AlignIO.parse(alignment_path, 'fasta'))
+    for record in alignment[0]:
+        print(dir(record))
+        record.id = record.id.partition('|')[0]
+        record.description = ''
+    AlignIO.write(alignment[0], f'{family_path}/align.phy', 'fasta')
+    # write_phylip_from_fasta(alignment_path, f'{family_path}/align.phy')
     shutil.copy(gene_tree_path, f'{family_path}/tree.nwk')
     for model, params in models.items():
         for omega in models_omega[model]:
@@ -189,9 +197,11 @@ def setup_branch_site_models(family_name, family_path, alignment_path, gene_tree
     }
 
     # Write shared resources to family root 
-    # alignment = AlignIO.parse(alignment_path, 'fasta')
-    write_phylip_from_fasta(alignment_path, f'{family_path}/align.phy')
-    # AlignIO.write(alignment, f'{family_path}/align.phy', 'phylip-relaxed')
+    alignment = list(AlignIO.parse(alignment_path, 'fasta'))
+    for record in alignment[0]:
+        record.id = record.id.partition('|')[0]
+        record.description = ''
+    AlignIO.write(alignment[0], f'{family_path}/align.phy', 'fasta')
     shutil.copy(gene_tree_path, f'{family_path}/tree.nwk')
 
     if branches:

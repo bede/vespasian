@@ -33,7 +33,11 @@ setup(name = 'vespa-slim',
       license = 'LICENSE',
       packages=['vespa'],
       zip_safe=True,
-      install_requires=['biopython>=1.68', 'treeswift>=1.0.56'],
+      install_requires=['biopython>=1.72',
+                        'treeswift>=1.0.57',
+                        'tqdm>=4.24.0',
+                        'argh>=0.26.2',
+                        'pyyaml>=3.13'],
       entry_points = {'console_scripts':['vespa=vespa.cli:main']})
 
 # MAFFT, Muscle, IQ-TREE

@@ -46,12 +46,15 @@ def infer_gene_trees(input_path, tree_path, output_path):
 def label_branch(tree_path, branch_label, leaf_labels):
     '''Return Tree with codeml labelled ancestral branch or leaf node if children absent'''
     tree = treeswift.read_tree_newick(tree_path)
+    stems_names = {n.label.partition('|')[0]:n.label for n in tree.traverse_leaves()}
     if leaf_labels:  # internal node
-        leaf_labels = set(leaf_labels)
-        mrca = tree.mrca(leaf_labels)  # fetch MRCA, throws RunTimeError if impossible
+        expanded_leaf_labels = (stems_names.get(l) for l in leaf_labels)  # generate long names
+        mrca = tree.mrca(set(filter(None, leaf_labels)))  # fetch MRCA else throws RunTimeError
         mrca.label = "'#1'"
     else:  # leaf node
-        tree.label_to_node()[branch_label].label += '#1'  # Throws KeyError if leaf absent
+        labels_nodes = tree.label_to_node()
+        if branch_label in labels_nodes:  # leaf present
+            labels_nodes[branch_label].label += '#1'
     return tree
 
 
@@ -120,7 +123,6 @@ def setup_site_models(family_name, family_path, alignment_path, gene_tree_path):
         'm8a': [1]
     }
 
-    # Write shared resources to family root
     alignment = list(AlignIO.parse(alignment_path, 'fasta'))
     AlignIO.write(alignment[0], f'{family_path}/align.fa', 'fasta')
     shutil.copy(gene_tree_path, f'{family_path}/tree.nwk')
@@ -147,7 +149,6 @@ def setup_branch_site_models(family_name, family_path, alignment_path, gene_tree
         'modelAnull': [1]
     }
 
-    # Write shared resources to family root 
     alignment = list(AlignIO.parse(alignment_path, 'fasta'))
     AlignIO.write(alignment[0], f'{family_path}/align.fa', 'fasta')
     shutil.copy(gene_tree_path, f'{family_path}/tree.nwk')
@@ -157,7 +158,7 @@ def setup_branch_site_models(family_name, family_path, alignment_path, gene_tree
             branch_path = f'{family_path}/{family_name}_{branch}'
             try:
                 labelled_tree = label_branch(f'{family_path}/tree.nwk', branch, leaves)
-            except (KeyError, RuntimeError):  # KeyError: tip absent, RuntimeError: no MRCA
+            except RuntimeError:  # RuntimeError: no MRCA for these nodes
                 continue
             for model, params in models.items():
                 for omega in models_omega[model]:
@@ -195,7 +196,6 @@ def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir):
     
     for family, alignment_path in alignments_paths.items():
         family_path = f'{output_dir}/{family}'
-        alignment  = AlignIO.parse(alignment_path, 'fasta')
         os.makedirs(f'{family_path}', exist_ok=True)
         gene_tree_path = f'{gene_trees_dir}/{family}.nwk'
         setup_site_models(family, family_path, alignment_path, gene_tree_path)

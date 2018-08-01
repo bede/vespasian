@@ -1,8 +1,9 @@
 import os
 import sys
-import yaml
 import shutil
 
+import yaml
+import tqdm
 import treeswift
 
 from pathlib import Path
@@ -194,7 +195,7 @@ def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir):
     alignments_paths = {Path(a).stem: a for a in alignment_paths}
     branches = parse_branch_file(branch_file)
     
-    for family, alignment_path in alignments_paths.items():
+    for family, alignment_path in tqdm.tqdm(alignments_paths.items()):
         family_path = f'{output_dir}/{family}'
         os.makedirs(f'{family_path}', exist_ok=True)
         gene_tree_path = f'{gene_trees_dir}/{family}.nwk'

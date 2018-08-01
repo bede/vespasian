@@ -10,33 +10,33 @@ import treeswift
 from Bio import AlignIO, SeqIO
 
 
-def write_phylip_from_fasta(alignment_path, path, name_len=40):
-    '''
-    Write codeml compatible sequential Phylip from a *list* of AlignIO records.
-    AlignIO.write() formats all incompatible with codeml :'(
-    '''
-    alignment = list(AlignIO.parse(alignment_path, 'fasta'))[0]
-    alignment_len = next(AlignIO.parse(alignment_path, 'fasta')).get_alignment_length()
-    num_records = len(alignment)
+# def write_phylip_from_fasta(alignment_path, path, name_len=40):
+#     '''
+#     Write codeml compatible sequential Phylip from a *list* of AlignIO records.
+#     AlignIO.write() formats all incompatible with codeml :'(
+#     '''
+#     alignment = list(AlignIO.parse(alignment_path, 'fasta'))[0]
+#     alignment_len = next(AlignIO.parse(alignment_path, 'fasta')).get_alignment_length()
+#     num_records = len(alignment)
     
-    phylip_lines = [f' {num_records} {alignment_len}']
-    for record in alignment:
-        counter = 0
-        name_padding = name_len - len(record.id)
-        phylip_lines.append(f'{record.id: <{name_len}}  {record.seq[:59]}')
-        while True:
-             phylip_lines.append()
-        # print(f'{record.id: <{name_len}}  {record.seq}'.strip())
+#     phylip_lines = [f' {num_records} {alignment_len}']
+#     for record in alignment:
+#         counter = 0
+#         name_padding = name_len - len(record.id)
+#         phylip_lines.append(f'{record.id: <{name_len}}  {record.seq[:59]}')
+#         while True:
+#              phylip_lines.append()
+#         # print(f'{record.id: <{name_len}}  {record.seq}'.strip())
     
-    with open(path, 'w+') as phylip_fh:
-        phylip_fh.write('\n'.join(phylip_lines))
+#     with open(path, 'w+') as phylip_fh:
+#         phylip_fh.write('\n'.join(phylip_lines))
 
 
 class ControlFile():
     '''Create the required config to generate a CodeML control (.ctl) file'''
     
     def __init__(self, model_name, model=0, NSsites=8, fix_omega=1, ncatG=10, omega=1):
-        self.seqfile = 'align.phy'
+        self.seqfile = 'align.fa'
         self.treefile = 'tree.nwk'
         self.outfile = 'out'
         self.noisy = 3
@@ -74,22 +74,14 @@ class ControlFile():
             ctl_fh.write(ctl)
 
 
-# def gene_tree(alignment_path, tree_path, output_path):
-#     '''Build gene tree by pruning species tree to contain only nodes present in alignment'''
-#     records = SeqIO.parse(alignment_path, 'fasta')
-#     records_headers = set((r.id.partition('|')[0] for r in records))
-#     species_tree = treeswift.read_tree_newick(tree_path)
-#     gene_tree = species_tree.extract_tree_with(records_headers)
-#     return gene_tree
-
-
 def infer_gene_tree(alignment_path, tree_path, output_path):
     '''Build gene tree by pruning species tree to contain only nodes present in alignment'''
-    records = SeqIO.parse(alignment_path, 'fasta')
-    records_headers = set((r.id.partition('|')[0] for r in records))
-    # records_headers = set((r.id for r in records))
+    records = list(SeqIO.parse(alignment_path, 'fasta'))
+    stems_names = {r.id.partition('|')[0]: r.id for r in records}  # Map prefix to full name
+    stems = set(stems_names.keys())
     species_tree = treeswift.read_tree_newick(tree_path)
-    gene_tree = species_tree.extract_tree_with(records_headers)
+    gene_tree = species_tree.extract_tree_with(stems)
+    gene_tree.rename_nodes(stems_names)
     gene_tree.write_tree_newick(output_path)
 
 
@@ -167,12 +159,7 @@ def setup_site_models(family_name, family_path, alignment_path, gene_tree_path):
     }
 
     alignment = list(AlignIO.parse(alignment_path, 'fasta'))
-    for record in alignment[0]:
-        print(dir(record))
-        record.id = record.id.partition('|')[0]
-        record.description = ''
-    AlignIO.write(alignment[0], f'{family_path}/align.phy', 'fasta')
-    # write_phylip_from_fasta(alignment_path, f'{family_path}/align.phy')
+    AlignIO.write(alignment[0], f'{family_path}/align.fa', 'fasta')
     shutil.copy(gene_tree_path, f'{family_path}/tree.nwk')
     for model, params in models.items():
         for omega in models_omega[model]:
@@ -180,7 +167,7 @@ def setup_site_models(family_name, family_path, alignment_path, gene_tree_path):
             run_dir = f'{family_path}/{family_name}/{model}/Omega{omega}'
             os.makedirs(run_dir, exist_ok=True)
             shutil.copy(f'{family_path}/tree.nwk', run_dir)
-            shutil.copy(f'{family_path}/align.phy', f'{run_dir}/align.phy')
+            shutil.copy(f'{family_path}/align.fa', f'{run_dir}/align.fa')
             ControlFile(model, **params).write(f'{run_dir}/codeml.ctl')
 
 
@@ -201,7 +188,7 @@ def setup_branch_site_models(family_name, family_path, alignment_path, gene_tree
     for record in alignment[0]:
         record.id = record.id.partition('|')[0]
         record.description = ''
-    AlignIO.write(alignment[0], f'{family_path}/align.phy', 'fasta')
+    AlignIO.write(alignment[0], f'{family_path}/align.fa', 'fasta')
     shutil.copy(gene_tree_path, f'{family_path}/tree.nwk')
 
     if branches:
@@ -219,13 +206,5 @@ def setup_branch_site_models(family_name, family_path, alignment_path, gene_tree
                     labelled_tree.write_tree_newick(f'{run_dir}/tree.nwk')
                     # label_branch(f'{family_path}/tree.nwk', leaves).write_tree_newick(f'{run_dir}/tree.nwk')
                     # shutil.copy(f'{family_path}/tree.nwk', run_dir)
-                    shutil.copy(f'{family_path}/align.phy', f'{run_dir}/align.phy')
+                    shutil.copy(f'{family_path}/align.fa', f'{run_dir}/align.fa')
                     ControlFile(model, **params).write(f'{run_dir}/codeml.ctl')
-
-                 
-
-
-# def fasta_to_phylip(input_path, output_path):
-#     alignment = AlignIO.parse(input_path, 'fasta')
-#     AlignIO.write(alignment, f'{output_path}/align.phy', 'phylip-relaxed')
-

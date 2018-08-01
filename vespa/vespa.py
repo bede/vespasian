@@ -3,38 +3,60 @@ import sys
 import yaml
 import shutil
 
-from pathlib import Path
-
 import treeswift
+
+from pathlib import Path
 
 from Bio import AlignIO, SeqIO
 
 
-# def write_phylip_from_fasta(alignment_path, path, name_len=40):
-#     '''
-#     Write codeml compatible sequential Phylip from a *list* of AlignIO records.
-#     AlignIO.write() formats all incompatible with codeml :'(
-#     '''
-#     alignment = list(AlignIO.parse(alignment_path, 'fasta'))[0]
-#     alignment_len = next(AlignIO.parse(alignment_path, 'fasta')).get_alignment_length()
-#     num_records = len(alignment)
-    
-#     phylip_lines = [f' {num_records} {alignment_len}']
-#     for record in alignment:
-#         counter = 0
-#         name_padding = name_len - len(record.id)
-#         phylip_lines.append(f'{record.id: <{name_len}}  {record.seq[:59]}')
-#         while True:
-#              phylip_lines.append()
-#         # print(f'{record.id: <{name_len}}  {record.seq}'.strip())
-    
-#     with open(path, 'w+') as phylip_fh:
-#         phylip_fh.write('\n'.join(phylip_lines))
+
+def parse_branch_file(branch_file):
+    '''Parse YAML file containing foreground lineage definitions for codeml analysis'''
+    with open(branch_file, 'r') as stream:
+        try:
+            branches = yaml.load(stream)
+        except yaml.YAMLError:
+            print('Problem parsing branch file')
+            raise
+    return branches
+
+
+def infer_gene_tree(alignment_path, tree_path, output_path):
+    '''Build gene tree by pruning species tree to contain only nodes present in alignment'''
+    records = list(SeqIO.parse(alignment_path, 'fasta'))
+    stems_names = {r.id.partition('|')[0]: r.id for r in records}  # Map prefix to full name
+    stems = set(stems_names.keys())
+    species_tree = treeswift.read_tree_newick(tree_path)
+    gene_tree = species_tree.extract_tree_with(stems)
+    gene_tree.rename_nodes(stems_names)
+    gene_tree.write_tree_newick(output_path)
+
+
+def infer_gene_trees(input_path, tree_path, output_path):
+    '''Build gene trees for a directory containing aligned gene families'''
+    family_paths = [f'{input_path}/{fn}' for fn in os.listdir(input_path)
+                    if fn.endswith(('.fa', '.fasta'))]
+    families_paths = {Path(a).stem: a for a in family_paths}
+    for family, path in families_paths.items():
+        os.makedirs(output_path, exist_ok=True)
+        infer_gene_tree(path, tree_path, f'{output_path}/{family}.nwk')
+
+
+def label_branch(tree_path, branch_label, leaf_labels):
+    '''Return Tree with codeml labelled ancestral branch or leaf node if children absent'''
+    tree = treeswift.read_tree_newick(tree_path)
+    if leaf_labels:  # internal node
+        leaf_labels = set(leaf_labels)
+        mrca = tree.mrca(leaf_labels)  # fetch MRCA, throws RunTimeError if impossible
+        mrca.label = "'#1'"
+    else:  # leaf node
+        tree.label_to_node()[branch_label].label += '#1'  # Throws KeyError if leaf absent
+    return tree
 
 
 class ControlFile():
     '''Create the required config to generate a CodeML control (.ctl) file'''
-    
     def __init__(self, model_name, model=0, NSsites=8, fix_omega=1, ncatG=10, omega=1):
         self.seqfile = 'align.fa'
         self.treefile = 'tree.nwk'
@@ -72,66 +94,6 @@ class ControlFile():
             ctl += f'{k} = {v}\n'
         with open(path, 'w+') as ctl_fh:
             ctl_fh.write(ctl)
-
-
-def infer_gene_tree(alignment_path, tree_path, output_path):
-    '''Build gene tree by pruning species tree to contain only nodes present in alignment'''
-    records = list(SeqIO.parse(alignment_path, 'fasta'))
-    stems_names = {r.id.partition('|')[0]: r.id for r in records}  # Map prefix to full name
-    stems = set(stems_names.keys())
-    species_tree = treeswift.read_tree_newick(tree_path)
-    gene_tree = species_tree.extract_tree_with(stems)
-    gene_tree.rename_nodes(stems_names)
-    gene_tree.write_tree_newick(output_path)
-
-
-def infer_gene_trees(input_path, tree_path, output_path):
-    '''Build gene trees for a directory containing aligned gene families'''
-    family_paths = [f'{input_path}/{fn}' for fn in os.listdir(input_path)
-                    if fn.endswith(('.fa', '.fasta'))]
-    families_paths = {Path(a).stem: a for a in family_paths}
-    for family, path in families_paths.items():
-        os.makedirs(output_path, exist_ok=True)
-        infer_gene_tree(path, tree_path, f'{output_path}/{family}.nwk')
-
-
-def parse_branch_file(branch_file):
-    '''Parse YAML file containing foreground lineage definitions for codeml analysis'''
-    with open(branch_file, 'r') as stream:
-        try:
-            branches = yaml.load(stream)
-        except yaml.YAMLError:
-            print('Problem parsing branch file')
-            raise
-    return branches
-
-
-def label_branch(tree_path, branch_label, leaf_labels):
-    '''Return Tree with codeml labelled ancestral branch or leaf node if children absent'''
-    tree = treeswift.read_tree_newick(tree_path)
-    if leaf_labels:  # internal node
-        leaf_labels = set(leaf_labels)
-        mrca = tree.mrca(leaf_labels)  # fetch MRCA, throws RunTimeError if impossible
-        mrca.label = "'#1'"
-    else:  # leaf node
-        tree.label_to_node()[branch_label].label += '#1'  # Throws KeyError if leaf absent
-    return tree
-
-
-def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir):
-    alignment_paths = [f'{families_dir}/{fn}' for fn in os.listdir(families_dir)
-                    if fn.endswith(('.fa', '.fasta'))]
-    alignments_paths = {Path(a).stem: a for a in alignment_paths}
-
-    branches = parse_branch_file(branch_file)
-
-    for family, alignment_path in alignments_paths.items():
-        family_path = f'{output_dir}/{family}'
-        alignment  = AlignIO.parse(alignment_path, 'fasta')
-        os.makedirs(f'{family_path}', exist_ok=True)
-        gene_tree_path = f'{gene_trees_dir}/{family}.nwk'
-        setup_site_models(family, family_path, alignment_path, gene_tree_path)
-        setup_branch_site_models(family, family_path, alignment_path, gene_tree_path, branches)
 
 
 def setup_site_models(family_name, family_path, alignment_path, gene_tree_path):
@@ -204,7 +166,38 @@ def setup_branch_site_models(family_name, family_path, alignment_path, gene_tree
                     run_dir = f'{branch_path}/{model}/Omega{omega}'
                     os.makedirs(run_dir, exist_ok=True)
                     labelled_tree.write_tree_newick(f'{run_dir}/tree.nwk')
-                    # label_branch(f'{family_path}/tree.nwk', leaves).write_tree_newick(f'{run_dir}/tree.nwk')
-                    # shutil.copy(f'{family_path}/tree.nwk', run_dir)
                     shutil.copy(f'{family_path}/align.fa', f'{run_dir}/align.fa')
                     ControlFile(model, **params).write(f'{run_dir}/codeml.ctl')
+
+
+def list_codeml_dirs(path):
+    '''Recursively finds and generates codeml directory paths within a target directory tree'''
+    for entry in os.scandir(path):
+        if entry.is_dir(follow_symlinks=False):
+            if 'Omega' in entry.name:
+                print(entry.name)
+                yield entry.path
+            else:
+                yield from list_codeml_dirs(entry.path)
+
+
+def list_codeml_commands(path, codeml_binary_path):
+    '''Generates list of codeml commands to be executed'''
+    codeml_dirs = list_codeml_dirs(path)
+    return [f'cd {c} && {codeml_binary_path}' for c in codeml_dirs]
+
+
+def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir):
+    '''Configure site and branch-site test environment given alignments, gene trees and branches'''
+    alignment_paths = [f'{families_dir}/{fn}' for fn in os.listdir(families_dir)
+                    if fn.endswith(('.fa', '.fasta'))]
+    alignments_paths = {Path(a).stem: a for a in alignment_paths}
+    branches = parse_branch_file(branch_file)
+    for family, alignment_path in alignments_paths.items():
+        family_path = f'{output_dir}/{family}'
+        alignment  = AlignIO.parse(alignment_path, 'fasta')
+        os.makedirs(f'{family_path}', exist_ok=True)
+        gene_tree_path = f'{gene_trees_dir}/{family}.nwk'
+        setup_site_models(family, family_path, alignment_path, gene_tree_path)
+        setup_branch_site_models(family, family_path, alignment_path, gene_tree_path, branches)
+    print(list_codeml_commands(output_dir, '/Users/bede/Research/Tools/vespa-slim/bin/codeml'))

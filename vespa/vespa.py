@@ -120,9 +120,11 @@ def setup_site_models(family_name, family_path, alignment_path, gene_tree_path):
         'm8a': [1]
     }
 
+    # Write shared resources to family root
     alignment = list(AlignIO.parse(alignment_path, 'fasta'))
     AlignIO.write(alignment[0], f'{family_path}/align.fa', 'fasta')
     shutil.copy(gene_tree_path, f'{family_path}/tree.nwk')
+
     for model, params in models.items():
         for omega in models_omega[model]:
             params['omega'] = omega
@@ -147,9 +149,6 @@ def setup_branch_site_models(family_name, family_path, alignment_path, gene_tree
 
     # Write shared resources to family root 
     alignment = list(AlignIO.parse(alignment_path, 'fasta'))
-    for record in alignment[0]:
-        record.id = record.id.partition('|')[0]
-        record.description = ''
     AlignIO.write(alignment[0], f'{family_path}/align.fa', 'fasta')
     shutil.copy(gene_tree_path, f'{family_path}/tree.nwk')
 
@@ -171,11 +170,10 @@ def setup_branch_site_models(family_name, family_path, alignment_path, gene_tree
 
 
 def list_codeml_dirs(path):
-    '''Recursively finds and generates codeml directory paths within a target directory tree'''
+    '''Recursively finds codeml directory paths within a target directory tree'''
     for entry in os.scandir(path):
         if entry.is_dir(follow_symlinks=False):
             if 'Omega' in entry.name:
-                print(entry.name)
                 yield entry.path
             else:
                 yield from list_codeml_dirs(entry.path)
@@ -184,7 +182,8 @@ def list_codeml_dirs(path):
 def list_codeml_commands(path, codeml_binary_path):
     '''Generates list of codeml commands to be executed'''
     codeml_dirs = list_codeml_dirs(path)
-    return [f'cd {c} && {codeml_binary_path}' for c in codeml_dirs]
+    codeml_dirs_no_prefix = [Path(p).relative_to(path) for p in codeml_dirs]  # Relative to codeml/
+    return [f'cd {c} && {codeml_binary_path}' for c in codeml_dirs_no_prefix]
 
 
 def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir):
@@ -193,6 +192,7 @@ def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir):
                     if fn.endswith(('.fa', '.fasta'))]
     alignments_paths = {Path(a).stem: a for a in alignment_paths}
     branches = parse_branch_file(branch_file)
+    
     for family, alignment_path in alignments_paths.items():
         family_path = f'{output_dir}/{family}'
         alignment  = AlignIO.parse(alignment_path, 'fasta')
@@ -200,4 +200,7 @@ def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir):
         gene_tree_path = f'{gene_trees_dir}/{family}.nwk'
         setup_site_models(family, family_path, alignment_path, gene_tree_path)
         setup_branch_site_models(family, family_path, alignment_path, gene_tree_path, branches)
-    print(list_codeml_commands(output_dir, '/Users/bede/Research/Tools/vespa-slim/bin/codeml'))
+    
+    cmds = list_codeml_commands(output_dir, '/Users/bede/Research/Tools/vespa-slim/bin/codeml')  # hack
+    with open(f'{output_dir}/commands.sh', 'w+') as cmds_fh:
+        cmds_fh.write('\n'.join(cmds))

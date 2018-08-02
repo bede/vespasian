@@ -13,9 +13,6 @@ from pathlib import Path
 from Bio import AlignIO, SeqIO
 
 
-# Make branch labelling optional, change arg order
-
-
 def parse_branch_file(branch_file):
     '''Parse YAML file containing foreground lineage definitions for codeml analysis'''
     with open(branch_file, 'r') as stream:
@@ -197,7 +194,7 @@ def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir, progress
     alignment_paths = [f'{families_dir}/{fn}' for fn in os.listdir(families_dir)
                     if fn.endswith(('.fa', '.fasta'))]
     alignments_paths = {Path(a).stem: a for a in alignment_paths}
-    branches = parse_branch_file(branch_file)
+    branches = parse_branch_file(branch_file) if branch_file else None
     
     for family, alignment_path in tqdm.tqdm(alignments_paths.items(), disable=not progress):
         family_path = f'{output_dir}/{family}'

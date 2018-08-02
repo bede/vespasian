@@ -16,17 +16,17 @@ def configure_warnings(show_warnings):
 
 
 
-def infer_gene_trees(input_dir: 'path of directory containing gene families',
-                     tree: 'path of newick formatted species tree',
-                     output_dir: 'path of output directory'):
+def infer_gene_trees(input: 'path to directory containing gene families',
+                     tree: 'path to newick formatted species tree',
+                     output: 'path to output directory' = 'gene-trees'):
     '''CLI: create gene trees by pruning a given species tree'''
-    vespa.infer_gene_trees(input_dir, tree, output_dir)
+    vespa.infer_gene_trees(input, tree, output)
 
 
 def codeml_setup(input: 'path to directory containing aligned gene families',
                  gene_trees: 'path to directory containing gene trees',
-                 branches: 'path to yaml file containing branches to be labelled as foreground lineages',
-                 output: 'path to output directory',
+                 branches: 'path to yaml file containing branches to be labelled' = None,
+                 output: 'path to output directory' = 'codeml',
                  progress: 'show progress bar' = False,
                  warnings: 'show warnings' = False):
     '''CLI: create suite of branch and branch-site codeml environments'''

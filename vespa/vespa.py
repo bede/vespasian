@@ -1,15 +1,19 @@
 import os
 import sys
 import shutil
+import warnings
 
 import yaml
 import tqdm
 import treeswift
 
+
 from pathlib import Path
 
 from Bio import AlignIO, SeqIO
 
+
+# Make branch labelling optional, change arg order
 
 
 def parse_branch_file(branch_file):
@@ -188,14 +192,14 @@ def list_codeml_commands(path, codeml_binary_path):
     return [f'cd {c} && {codeml_binary_path}' for c in codeml_dirs_no_prefix]
 
 
-def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir):
+def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir, progress=False):
     '''Configure site and branch-site test environment given alignments, gene trees and branches'''
     alignment_paths = [f'{families_dir}/{fn}' for fn in os.listdir(families_dir)
                     if fn.endswith(('.fa', '.fasta'))]
     alignments_paths = {Path(a).stem: a for a in alignment_paths}
     branches = parse_branch_file(branch_file)
     
-    for family, alignment_path in tqdm.tqdm(alignments_paths.items()):
+    for family, alignment_path in tqdm.tqdm(alignments_paths.items(), disable=not progress):
         family_path = f'{output_dir}/{family}'
         os.makedirs(f'{family_path}', exist_ok=True)
         gene_tree_path = f'{gene_trees_dir}/{family}.nwk'

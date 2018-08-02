@@ -1,9 +1,18 @@
 import sys
+import warnings
+
 import argh
 
-from Bio import SeqIO
-
 from vespa import vespa
+
+
+
+def configure_warnings(show_warnings):
+    if show_warnings:
+        warnings.filterwarnings('always')
+    else:
+        warnings.filterwarnings('ignore')
+
 
 
 def infer_gene_trees(input_dir: 'path of directory containing gene families',
@@ -16,9 +25,13 @@ def infer_gene_trees(input_dir: 'path of directory containing gene families',
 def codeml_setup(input: 'path to directory containing aligned gene families',
                  gene_trees: 'path to directory containing gene trees',
                  branches: 'path to yaml file containing branches to be labelled as foreground lineages',
-                 output: 'path to output directory'):
+                 output: 'path to output directory',
+                 progress: 'show progress bar' = False,
+                 warnings: 'show warnings' = False):
     '''Create suite of branch and branch-site codeml environments'''
-    vespa.codeml_setup(input, gene_trees, branches, output)
+    configure_warnings(warnings)
+    vespa.codeml_setup(input, gene_trees, branches, output, progress)
+
 
 
 def main():

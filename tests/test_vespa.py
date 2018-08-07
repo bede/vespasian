@@ -16,7 +16,7 @@ def run(cmd, cwd=cwd):
 
 
 def setup_pipeline():
-    run_cmd('rm -rf gene-trees codeml', cwd=data_dir)  # Start afresh
+    run_cmd('rm -rf gene-trees codeml codeml-unlabelled', cwd=data_dir)  # Start afresh
 
 
 def test_infer_genetree():  # default --output is gene-trees

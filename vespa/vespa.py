@@ -23,10 +23,10 @@ def parse_branch_file(branch_file):
     return branches
 
 
-def infer_gene_tree(alignment_path, tree_path, output_path):
+def infer_gene_tree(alignment_path, tree_path, output_path, separator='|'):
     '''Build gene tree by pruning species tree to contain only nodes present in alignment'''
     records = list(SeqIO.parse(alignment_path, 'fasta'))
-    stems_names = {r.id.partition('|')[0]: r.id for r in records}  # Map prefix to full name
+    stems_names = {r.id.partition(separator)[0]: r.id for r in records}  # Map prefix to full name
     stems = set(stems_names.keys())
     species_tree = treeswift.read_tree_newick(tree_path)
     gene_tree = species_tree.extract_tree_with(stems)
@@ -34,20 +34,20 @@ def infer_gene_tree(alignment_path, tree_path, output_path):
     gene_tree.write_tree_newick(output_path)
 
 
-def infer_gene_trees(input_path, tree_path, output_path):
+def infer_gene_trees(input_path, tree_path, output_path, separator='|', progress=False):
     '''Build gene trees for a directory containing aligned gene families'''
     family_paths = [f'{input_path}/{fn}' for fn in os.listdir(input_path)
                     if fn.endswith(('.fa', '.fasta'))]
     families_paths = {Path(a).stem: a for a in family_paths}
-    for family, path in families_paths.items():
+    for family, path in tqdm.tqdm(families_paths.items(), disable=not progress):
         os.makedirs(output_path, exist_ok=True)
         infer_gene_tree(path, tree_path, f'{output_path}/{family}.nwk')
 
 
-def label_branch(tree_path, branch_label, leaf_labels):
+def label_branch(tree_path, branch_label, leaf_labels, separator='|'):
     '''Return Tree with codeml labelled ancestral branch or leaf node if children absent'''
     tree = treeswift.read_tree_newick(tree_path)
-    stems_names = {n.label.partition('|')[0]: n.label for n in tree.traverse_leaves()}
+    stems_names = {n.label.partition(separator)[0]: n.label for n in tree.traverse_leaves()}
     if leaf_labels:  # internal node
         expanded_leaf_labels = (stems_names.get(l) for l in leaf_labels)  # generate long names
         mrca = tree.mrca(set(filter(None, expanded_leaf_labels)))  # fetch MRCA else throws RunTimeError
@@ -188,7 +188,7 @@ def list_codeml_commands(path, codeml_binary_path):
     return [f'cd {c} && {codeml_binary_path}' for c in codeml_dirs_no_prefix]
 
 
-def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir, progress=False):
+def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir, separator, progress=False):
     '''Configure site and branch-site test environment given alignments, gene trees and branches'''
     alignment_paths = [f'{families_dir}/{fn}' for fn in os.listdir(families_dir)
                     if fn.endswith(('.fa', '.fasta'))]
@@ -203,5 +203,5 @@ def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir, progress
         setup_branch_site_models(family, family_path, alignment_path, gene_tree_path, branches)
     
     cmds = list_codeml_commands(output_dir, '/Users/bede/Research/Tools/vespa-slim/bin/codeml')  # hack
-    with open(f'{output_dir}/commands.sh', 'w+') as cmds_fh:
+    with open(f'{output_dir}/codeml_commands.sh', 'w+') as cmds_fh:
         cmds_fh.write('\n'.join(cmds))

@@ -12,6 +12,7 @@ from pathlib import Path
 from Bio import AlignIO, SeqIO
 
 
+
 def parse_branch_file(branch_file):
     '''Parse YAML file containing foreground lineage definitions for codeml analysis'''
     with open(branch_file, 'r') as stream:
@@ -194,7 +195,7 @@ def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir, separato
                     if fn.endswith(('.fa', '.fasta'))]
     alignments_paths = {Path(a).stem: a for a in alignment_paths}
     branches = parse_branch_file(branch_file) if branch_file else None
-    
+
     for family, alignment_path in tqdm.tqdm(alignments_paths.items(), disable=not progress):
         family_path = f'{output_dir}/{family}'
         os.makedirs(f'{family_path}', exist_ok=True)
@@ -202,6 +203,6 @@ def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir, separato
         setup_site_models(family, family_path, alignment_path, gene_tree_path)
         setup_branch_site_models(family, family_path, alignment_path, gene_tree_path, branches)
     
-    cmds = list_codeml_commands(output_dir, '/Users/bede/Research/Tools/vespa-slim/bin/codeml')  # hack
+    cmds = list_codeml_commands(output_dir, 'codeml')  # hack
     with open(f'{output_dir}/codeml_commands.sh', 'w+') as cmds_fh:
         cmds_fh.write('\n'.join(cmds))

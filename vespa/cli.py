@@ -2,7 +2,7 @@ import warnings
 
 import argh
 
-from vespa import vespa
+from vespa import vespa, util
 
 
 
@@ -14,13 +14,12 @@ def configure_warnings(show_warnings):
         warnings.filterwarnings('ignore')
 
 
-
 def infer_gene_trees(input: 'path to directory containing gene families',
                      tree: 'path to newick formatted species tree',
                      output: 'path to output directory' = 'gene-trees',
                      separator: 'character separating taxon name and identifier(s)' = '|',
                      progress: 'show progress bar' = False):
-    '''CLI: create gene trees by pruning a given species tree'''
+    '''Create gene trees by pruning a given species tree'''
     vespa.infer_gene_trees(input, tree, output, separator, progress)
 
 
@@ -31,16 +30,23 @@ def codeml_setup(input: 'path to directory containing aligned gene families',
                  separator: 'character separating taxon name and identifier(s)' = '|',
                  warnings: 'show warnings' = False,
                  progress: 'show progress bar' = False):
-    '''CLI: create suite of branch and branch-site codeml environments'''
+    '''Create suite of branch and branch-site codeml environments'''
     configure_warnings(warnings)
     vespa.codeml_setup(input, gene_trees, branches, output, separator, progress)
+
+
+
+def reformat_environments(input: 'path to directory containing codeml environments'):
+    '''Reformat vespa-slim codeml environments for use with legacy codeml_reader'''
+    util.reformat_environments(input)
 
 
 
 def main():
     parser = argh.ArghParser()
     parser.add_commands([infer_gene_trees,
-                         codeml_setup])
+                         codeml_setup,
+                         reformat_environments])
     parser.dispatch()
 
 

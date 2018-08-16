@@ -41,13 +41,10 @@ def reformat_environments(input: 'path to directory containing codeml environmen
     util.reformat_environments(input)
 
 
-
 def main():
-    parser = argh.ArghParser()
-    parser.add_commands([infer_gene_trees,
-                         codeml_setup,
-                         reformat_environments])
-    parser.dispatch()
+    argh.dispatch_commands([infer_gene_trees,
+                            codeml_setup,
+                            reformat_environments])
 
 
 if __name__ == '__main__':

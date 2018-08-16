@@ -65,7 +65,7 @@ def label_branch(tree_path, branch_label, leaf_labels, separator='|'):
 class ControlFile():
     '''Create the required config to generate a CodeML control (.ctl) file'''
     def __init__(self, model_name, model=0, NSsites=8, fix_omega=1, ncatG=10, omega=1):
-        self.seqfile = 'align.phy'
+        self.seqfile = 'align.fa'
         self.treefile = 'tree.nwk'
         self.outfile = 'out'
         self.noisy = 3

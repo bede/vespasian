@@ -138,7 +138,7 @@ def setup_site_models(family_name, family_path, alignment_path, gene_tree_path):
             run_dir = f'{family_path}/{family_name}/{model}/Omega{omega}'
             os.makedirs(run_dir, exist_ok=True)
             shutil.copy(f'{family_path}/tree.nwk', run_dir)
-            shutil.copy(f'{family_path}/align.phy', f'{run_dir}/align.phy')
+            shutil.copy(f'{family_path}/align.fa', f'{run_dir}/align.fa')
             ControlFile(model, **params).write(f'{run_dir}/codeml.ctl')
 
 

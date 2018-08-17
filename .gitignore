@@ -4,3 +4,10 @@ __pycache__/
 .cache/
 dist/
 kindel.egg-info/
+vespa_slim.egg-info/
+.pytest_cache/
+tests/data/codeml/
+tests/data/codeml-*
+tests/data/gene-trees/
+tests/data/gene-trees-*
+bin/

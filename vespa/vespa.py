@@ -31,6 +31,8 @@ def infer_gene_tree(alignment_path, tree_path, output_path, separator='|'):
     records = list(SeqIO.parse(alignment_path, 'fasta'))
     stems_names = {r.id.partition(separator)[0]: r.id for r in records}  # Map prefix to full name
     stems = set(stems_names.keys())
+    if len(records) != len(stems):
+        raise NameError(f'Duplicate taxa present in {alignment_path}')
     species_tree = treeswift.read_tree_newick(tree_path)
     gene_tree = species_tree.extract_tree_with(stems)
     gene_tree.rename_nodes(stems_names)

@@ -66,14 +66,15 @@ def label_branch(tree_path, branch_label, leaf_labels, separator='|'):
     '''Return Tree with codeml labelled ancestral branch or leaf node if children absent'''
     tree = treeswift.read_tree_newick(tree_path)
     stems_names = {n.label.partition(separator)[0]: n.label for n in tree.traverse_leaves()}
+    names_stems = {v: k for k, v in stems_names.items()}
     if leaf_labels:  # internal node
         expanded_leaf_labels = (stems_names.get(l) for l in leaf_labels)  # generate long names
         mrca = tree.mrca(set(filter(None, expanded_leaf_labels)))  # fetch MRCA else throws RunTimeError
         mrca.label = "'#1'"
     else:  # leaf node
         labels_nodes = tree.label_to_node()
-        if branch_label in labels_nodes:  # leaf present
-            labels_nodes[branch_label].label += '#1'
+        if branch_label in stems_names:  # leaf present
+            labels_nodes[stems_names[branch_label]].label += '#1'
     return tree
 
 

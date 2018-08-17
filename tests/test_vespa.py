@@ -1,6 +1,10 @@
 import os
 import subprocess
 
+import pytest
+
+from vespa import vespa
+
 
 cwd = os.getcwd()
 data_dir = 'tests/data'  # Test from project root
@@ -22,6 +26,12 @@ def setup_pipeline():
 def test_infer_genetree():  # default --output is gene-trees
     run_cmd = run('vespa infer-gene-trees frog-families tree2.tre', cwd=data_dir)
     print(run_cmd.stdout, run_cmd.stderr)
+
+
+def test_infer_genetree_with_errant_taxon():
+    with pytest.raises(NameError) as excinfo:
+        vespa.infer_gene_trees(f'{data_dir}/frog-families-errant-taxon', f'{data_dir}/tree2.tre', f'{data_dir}/gene-trees-errant-taxon')
+    assert 'alloallo' in str(excinfo.value)
 
 
 def test_codeml_setup():  # default --output is codeml

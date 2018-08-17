@@ -35,6 +35,7 @@ def infer_gene_tree(alignment_path, tree_path, output_path, separator='|'):
     gene_tree = species_tree.extract_tree_with(stems)
     gene_tree.rename_nodes(stems_names)
     gene_tree.write_tree_newick(output_path)
+    return stems
 
 
 def infer_gene_trees(input_path, tree_path, output_path, separator='|', progress=False):
@@ -42,9 +43,21 @@ def infer_gene_trees(input_path, tree_path, output_path, separator='|', progress
     family_paths = [f'{input_path}/{fn}' for fn in os.listdir(input_path)
                     if fn.endswith(('.fa', '.fasta'))]
     families_paths = {Path(a).stem: a for a in family_paths}
+    
+    observed_stems = set()
     for family, path in tqdm.tqdm(families_paths.items(), disable=not progress):
         os.makedirs(output_path, exist_ok=True)
-        infer_gene_tree(path, tree_path, f'{output_path}/{family}.nwk')
+        stems = infer_gene_tree(path, tree_path, f'{output_path}/{family}.nwk')
+        observed_stems |= stems
+
+    # Ensure species tree contains all taxa observed within alignments
+    species_tree_labels = treeswift.read_tree_newick(tree_path).labels(internal=False)
+    species_tree_stems = set(l.partition(separator)[0] for l in species_tree_labels)
+    if observed_stems.difference(species_tree_stems):
+        raise NameError(f'The following taxa were not found in the species tree: \n'
+                        f'{observed_stems.difference(species_tree_stems)}')
+
+
 
 
 def label_branch(tree_path, branch_label, leaf_labels, separator='|'):
@@ -207,5 +220,5 @@ def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir, separato
         setup_branch_site_models(family, family_path, alignment_path, gene_tree_path, branches)
     
     cmds = list_codeml_commands(output_dir, 'codeml')  # hack
-    with open(f'{output_dir}/codeml_commands.sh', 'w+') as cmds_fh:
+    with open(f'{output_dir}/codeml-commands.sh', 'w+') as cmds_fh:
         cmds_fh.write('\n'.join(cmds))

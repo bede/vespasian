@@ -26,6 +26,26 @@ def parse_branch_file(branch_file):
     return branches
 
 
+def unroot(tree):
+    '''Trifurcate bifurcating Treeswift Tree (as required by codeml)'''
+    for node in tree.traverse_levelorder():
+        if node.is_root():
+            if node.num_children() > 2:
+                return tree  # Root already trifurcating
+            children = node.child_nodes()
+            if children[0].num_children() == 2:
+                donor = children[0]
+            elif children[1].num_children() == 2:
+                donor = children[1]
+            else:
+                raise Exception('Tree assumptions broken')
+            donor_children = donor.child_nodes()
+            node.add_child(donor_children[0])
+            node.add_child(donor_children[1])
+            node.remove_child(donor)
+            return tree
+
+
 def infer_gene_tree(alignment_path, tree_path, output_path, separator='|'):
     '''Build gene tree by pruning species tree to contain only nodes present in alignment'''
     records = list(SeqIO.parse(alignment_path, 'fasta'))
@@ -36,7 +56,7 @@ def infer_gene_tree(alignment_path, tree_path, output_path, separator='|'):
     species_tree = treeswift.read_tree_newick(tree_path)
     gene_tree = species_tree.extract_tree_with(stems)
     gene_tree.rename_nodes(stems_names)
-    gene_tree.write_tree_newick(output_path)
+    unroot(gene_tree).write_tree_newick(output_path)
     return stems
 
 

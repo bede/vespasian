@@ -1,6 +1,7 @@
 import os
 import shutil
 import warnings
+import multiprocessing
 
 import yaml
 import tqdm
@@ -138,6 +139,12 @@ class ControlFile():
         with open(path, 'w+') as ctl_fh:
             ctl_fh.write(ctl)
 
+# def setup_environment(args):
+#     os.makedirs(args['run_dir'], exist_ok=True)
+#     shutil.copy(f"{args['family_path']}/tree.nwk", run_dir)
+#     shutil.copy(f"{args['family_path']}/align.fa", f"{args['run_dir']}/align.fa")
+#     ControlFile(model, **args['codeml_params']).write(f"{args['run_dir']}/codeml.ctl")
+
 
 def setup_site_models(family_name, family_path, alignment_path, gene_tree_path):
     '''Configure codeml site model environments'''
@@ -163,19 +170,32 @@ def setup_site_models(family_name, family_path, alignment_path, gene_tree_path):
         'm8a': [1]
     }
 
-    alignment = list(AlignIO.parse(alignment_path, 'fasta'))
-    AlignIO.write(alignment[0], f'{family_path}/align.fa', 'fasta')
-    util.convert_phylip(f'{family_path}/align.fa', f'{family_path}/align.phy')
-    shutil.copy(gene_tree_path, f'{family_path}/tree.nwk')
+    # alignment = list(AlignIO.parse(alignment_path, 'fasta'))
+    # AlignIO.write(alignment[0], f'{family_path}/align.fa', 'fasta')
+    # util.convert_phylip(f'{family_path}/align.fa', f'{family_path}/align.phy')
+    # shutil.copy(gene_tree_path, f'{family_path}/tree.nwk')
 
-    for model, params in models.items():
+    # setup_params = []
+    # for model, codeml_params in models.items():
+    #     for omega in models_omega[model]:
+    #         codeml_params['omega'] = omega
+    #         setup_params += dict(model=model,
+    #                              codeml_params=codeml_params,
+    #                              run_dir=f'{family_path}/{family_name}/{model}/Omega{omega}',
+    #                              family_path=f'{family_path}/tree.nwk')
+
+    # with multiprocessing.Pool(multiprocessing.cpu_count()) as pool:
+    #     pool.map(setup_environment, setup_params)
+
+
+    for model, codeml_params in models.items():
         for omega in models_omega[model]:
-            params['omega'] = omega
+            codeml_params['omega'] = omega
             run_dir = f'{family_path}/{family_name}/{model}/Omega{omega}'
             os.makedirs(run_dir, exist_ok=True)
             shutil.copy(f'{family_path}/tree.nwk', run_dir)
             shutil.copy(f'{family_path}/align.fa', f'{run_dir}/align.fa')
-            ControlFile(model, **params).write(f'{run_dir}/codeml.ctl')
+            ControlFile(model, **codeml_params).write(f'{run_dir}/codeml.ctl')
 
 
 def setup_branch_site_models(family_name, family_path, alignment_path, gene_tree_path, branches):
@@ -201,14 +221,14 @@ def setup_branch_site_models(family_name, family_path, alignment_path, gene_tree
                 labelled_tree = label_branch(f'{family_path}/tree.nwk', branch, leaves)
             except RuntimeError:  # RuntimeError: no MRCA for these nodes
                 continue
-            for model, params in models.items():
+            for model, codeml_params in models.items():
                 for omega in models_omega[model]:
-                    params['omega'] = omega
+                    codeml_params['omega'] = omega
                     run_dir = f'{branch_path}/{model}/Omega{omega}'
                     os.makedirs(run_dir, exist_ok=True)
                     labelled_tree.write_tree_newick(f'{run_dir}/tree.nwk')
                     shutil.copy(f'{family_path}/align.fa', f'{run_dir}/align.fa')
-                    ControlFile(model, **params).write(f'{run_dir}/codeml.ctl')
+                    ControlFile(model, **codeml_params).write(f'{run_dir}/codeml.ctl')
 
 
 def list_codeml_dirs(path):

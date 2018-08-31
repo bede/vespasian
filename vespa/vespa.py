@@ -23,7 +23,7 @@ def parse_branch_file(branch_file):
             branches = yaml.load(stream)
         except yaml.YAMLError:
             print('Problem parsing branch file')
-            raise
+            raise RuntimeError
     return branches
 
 
@@ -39,7 +39,7 @@ def unroot(tree):
             elif children[1].num_children() == 2:
                 donor = children[1]
             else:
-                raise Exception('Tree assumptions broken')
+                raise RuntimeError('Tree assumptions broken')
             donor_children = donor.child_nodes()
             node.add_child(donor_children[0])
             node.add_child(donor_children[1])
@@ -83,8 +83,6 @@ def infer_gene_trees(input_path, tree_path, output_path, separator='|', progress
                         f'{observed_stems.difference(species_tree_stems)}')
 
 
-
-
 def label_branch(tree_path, branch_label, leaf_labels, separator='|'):
     '''Return Tree with codeml labelled ancestral branch or leaf node if children absent'''
     tree = treeswift.read_tree_newick(tree_path)
@@ -94,10 +92,15 @@ def label_branch(tree_path, branch_label, leaf_labels, separator='|'):
         expanded_leaf_labels = (stems_names.get(l) for l in leaf_labels)  # generate long names
         mrca = tree.mrca(set(filter(None, expanded_leaf_labels)))  # fetch MRCA else throws RunTimeError
         mrca.label = "'#1'"
+        if len(list(mrca.child_nodes())) < 2:
+            print(f'Lineage {branch_label} in {tree_path} contains singletons')
+            warnings.warn(f'Lineage {branch_label} in {tree_path} contains singletons')
     else:  # leaf node
         labels_nodes = tree.label_to_node()
         if branch_label in stems_names:  # leaf present
             labels_nodes[stems_names[branch_label]].label += '#1'
+    if '#1' not in tree.newick():  # catch unlabelled branches, strictly necessary?
+        raise RuntimeError('hellp')
     return tree
 
 
@@ -232,6 +235,7 @@ def list_codeml_commands(path, codeml_binary_path):
 
 
 def setup_family(family, alignment_path, output_dir, gene_trees_dir, branches):
+    '''Parallelisable family level setup function'''
     family_path = f'{output_dir}/{family}'
     os.makedirs(f'{family_path}', exist_ok=True)
     gene_tree_path = f'{gene_trees_dir}/{family}.nwk'
@@ -246,7 +250,7 @@ def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir, separato
     alignments_paths = {Path(a).stem: a for a in alignment_paths}
     branches = parse_branch_file(branch_file) if branch_file else None
 
-    # Single threaded code
+    # Single threaded family setup
     # for family, alignment_path in tqdm.tqdm(alignments_paths.items(), disable=not progress):
     #     family_path = f'{output_dir}/{family}'
     #     os.makedirs(f'{family_path}', exist_ok=True)

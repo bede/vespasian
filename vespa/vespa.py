@@ -1,10 +1,11 @@
 import os
 import shutil
 import warnings
-import multiprocessing
+# import multiprocessing
 
 import yaml
 import tqdm
+# import parmap
 import treeswift
 
 
@@ -54,6 +55,8 @@ def infer_gene_tree(alignment_path, tree_path, output_path, separator='|'):
     stems = set(stems_names.keys())
     if len(records) != len(stems):
         raise NameError(f'Duplicate taxa present in {alignment_path}')
+    elif len(records) < 7:
+        warnings.warn(f'Fewer than 7 sequences found in {alignment_path}. Consider exclusion.')
     species_tree = treeswift.read_tree_newick(tree_path)
     gene_tree = species_tree.extract_tree_with(stems)
     gene_tree.rename_nodes(stems_names)
@@ -139,11 +142,12 @@ class ControlFile():
         with open(path, 'w+') as ctl_fh:
             ctl_fh.write(ctl)
 
-# def setup_environment(args):
-#     os.makedirs(args['run_dir'], exist_ok=True)
-#     shutil.copy(f"{args['family_path']}/tree.nwk", run_dir)
-#     shutil.copy(f"{args['family_path']}/align.fa", f"{args['run_dir']}/align.fa")
-#     ControlFile(model, **args['codeml_params']).write(f"{args['run_dir']}/codeml.ctl")
+
+# def setup_environment(model, family_path, run_dir, codeml_params):
+#     os.makedirs(run_dir, exist_ok=True)
+#     shutil.copy(f'{family_path}/tree.nwk', run_dir)
+#     shutil.copy(f'{family_path}/align.fa', f'{run_dir}/align.fa')
+#     ControlFile(model, **codeml_params).write(f'{run_dir}/codeml.ctl')
 
 
 def setup_site_models(family_name, family_path, alignment_path, gene_tree_path):
@@ -170,22 +174,26 @@ def setup_site_models(family_name, family_path, alignment_path, gene_tree_path):
         'm8a': [1]
     }
 
-    # alignment = list(AlignIO.parse(alignment_path, 'fasta'))
-    # AlignIO.write(alignment[0], f'{family_path}/align.fa', 'fasta')
-    # util.convert_phylip(f'{family_path}/align.fa', f'{family_path}/align.phy')
-    # shutil.copy(gene_tree_path, f'{family_path}/tree.nwk')
+    alignment = list(AlignIO.parse(alignment_path, 'fasta'))
+    AlignIO.write(alignment[0], f'{family_path}/align.fa', 'fasta')
+    util.convert_phylip(f'{family_path}/align.fa', f'{family_path}/align.phy')
+    shutil.copy(gene_tree_path, f'{family_path}/tree.nwk')
 
     # setup_params = []
     # for model, codeml_params in models.items():
     #     for omega in models_omega[model]:
     #         codeml_params['omega'] = omega
-    #         setup_params += dict(model=model,
-    #                              codeml_params=codeml_params,
-    #                              run_dir=f'{family_path}/{family_name}/{model}/Omega{omega}',
-    #                              family_path=f'{family_path}/tree.nwk')
+    #         setup_params.append((model,
+    #                             family_path,
+    #                             f'{family_path}/{family_name}/{model}/Omega{omega}',
+    #                             codeml_params))
 
-    # with multiprocessing.Pool(multiprocessing.cpu_count()) as pool:
-    #     pool.map(setup_environment, setup_params)
+    # parmap.starmap(setup_environment,
+    #                setup_params,
+    #                # pm_pbar=True,
+    #                pm_parallel=True,
+    #                pm_chunksize=100,
+    #                pm_processes=multiprocessing.cpu_count())
 
 
     for model, codeml_params in models.items():

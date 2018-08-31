@@ -1,11 +1,13 @@
 import os
 import shutil
 import warnings
-# import multiprocessing
+import multiprocessing
+from concurrent.futures import ProcessPoolExecutor, as_completed
+
 
 import yaml
 import tqdm
-# import parmap
+import parmap
 import treeswift
 
 
@@ -143,11 +145,55 @@ class ControlFile():
             ctl_fh.write(ctl)
 
 
-# def setup_environment(model, family_path, run_dir, codeml_params):
-#     os.makedirs(run_dir, exist_ok=True)
-#     shutil.copy(f'{family_path}/tree.nwk', run_dir)
-#     shutil.copy(f'{family_path}/align.fa', f'{run_dir}/align.fa')
-#     ControlFile(model, **codeml_params).write(f'{run_dir}/codeml.ctl')
+def setup_environment(model, family_path, run_dir, codeml_params):
+    os.makedirs(run_dir, exist_ok=True)
+    shutil.copy(f'{family_path}/tree.nwk', run_dir)
+    shutil.copy(f'{family_path}/align.fa', f'{run_dir}/align.fa')
+    ControlFile(model, **codeml_params).write(f'{run_dir}/codeml.ctl')
+
+
+
+
+def pmap(function, array, n_jobs=16, use_kwargs=False, front_num=3):
+    """
+        A parallel version of the map function with a progress bar. 
+
+        Args:
+            array (array-like): An array to iterate over.
+            function (function): A python function to apply to the elements of array
+            n_jobs (int, default=16): The number of cores to use
+            use_kwargs (boolean, default=False): Whether to consider the elements of array as dictionaries of 
+                keyword arguments to function 
+            front_num (int, default=3): The number of iterations to run serially before kicking off the parallel job. 
+                Useful for catching bugs
+        Returns:
+            [function(array[0]), function(array[1]), ...]
+    """   
+    with ProcessPoolExecutor(max_workers=n_jobs) as pool:
+        #Pass the elements of array into function
+        if use_kwargs:
+            futures = [pool.submit(function, **a) for a in array]
+        else:
+            futures = [pool.submit(function, a) for a in array]
+        kwargs = {
+            'total': len(futures),
+            'unit': 'it',
+            'unit_scale': True,
+            'leave': True
+        }
+        #Print out the progress as tasks complete
+        for f in tqdm.tqdm(as_completed(futures), **kwargs):
+            pass
+    out = []
+    #Get the results from the futures. 
+    for i, future in tqdm.tqdm(enumerate(futures)):
+        try:
+            out.append(future.result())
+        except Exception as e:
+            out.append(e)
+    return out
+
+
 
 
 def setup_site_models(family_name, family_path, alignment_path, gene_tree_path):
@@ -179,31 +225,37 @@ def setup_site_models(family_name, family_path, alignment_path, gene_tree_path):
     util.convert_phylip(f'{family_path}/align.fa', f'{family_path}/align.phy')
     shutil.copy(gene_tree_path, f'{family_path}/tree.nwk')
 
-    # setup_params = []
-    # for model, codeml_params in models.items():
-    #     for omega in models_omega[model]:
-    #         codeml_params['omega'] = omega
-    #         setup_params.append((model,
-    #                             family_path,
-    #                             f'{family_path}/{family_name}/{model}/Omega{omega}',
-    #                             codeml_params))
-
-    # parmap.starmap(setup_environment,
-    #                setup_params,
-    #                # pm_pbar=True,
-    #                pm_parallel=True,
-    #                pm_chunksize=100,
-    #                pm_processes=multiprocessing.cpu_count())
-
-
+    setup_params = []
     for model, codeml_params in models.items():
         for omega in models_omega[model]:
             codeml_params['omega'] = omega
-            run_dir = f'{family_path}/{family_name}/{model}/Omega{omega}'
-            os.makedirs(run_dir, exist_ok=True)
-            shutil.copy(f'{family_path}/tree.nwk', run_dir)
-            shutil.copy(f'{family_path}/align.fa', f'{run_dir}/align.fa')
-            ControlFile(model, **codeml_params).write(f'{run_dir}/codeml.ctl')
+            setup_params.append( dict(model=model,
+                                 family_path=family_path,
+                                 run_dir=f'{family_path}/{family_name}/{model}/Omega{omega}',
+                                 codeml_params=codeml_params))
+
+    # parmap.starmap(setup_environment,
+    #                setup_params,
+    #                pm_pbar=True,
+    #                pm_parallel=True,
+    #                pm_processes=multiprocessing.cpu_count())
+
+
+    pmap(setup_environment,
+         setup_params,
+         use_kwargs=True,
+         n_jobs=multiprocessing.cpu_count())
+
+
+
+    # for model, codeml_params in models.items():
+    #     for omega in models_omega[model]:
+    #         codeml_params['omega'] = omega
+    #         run_dir = f'{family_path}/{family_name}/{model}/Omega{omega}'
+    #         os.makedirs(run_dir, exist_ok=True)
+    #         shutil.copy(f'{family_path}/tree.nwk', run_dir)
+    #         shutil.copy(f'{family_path}/align.fa', f'{run_dir}/align.fa')
+    #         ControlFile(model, **codeml_params).write(f'{run_dir}/codeml.ctl')
 
 
 def setup_branch_site_models(family_name, family_path, alignment_path, gene_tree_path, branches):

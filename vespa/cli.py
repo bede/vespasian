@@ -18,8 +18,10 @@ def infer_gene_trees(input: 'path to directory containing gene families',
                      tree: 'path to newick formatted species tree',
                      output: 'path to output directory' = 'gene-trees',
                      separator: 'character separating taxon name and identifier(s)' = '|',
+                     warnings: 'show warnings' = False,
                      progress: 'show progress bar' = False):
     '''Create gene trees by pruning a given species tree'''
+    configure_warnings(warnings)
     vespa.infer_gene_trees(input, tree, output, separator, progress)
 
 

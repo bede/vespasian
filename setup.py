@@ -38,7 +38,9 @@ setup(name = 'vespa-slim',
                         'treeswift>=1.0.57',
                         'tqdm>=4.24.0',
                         'argh>=0.26.2',
-                        'pyyaml>=3.13'],
+                        'pyyaml>=3.13',
+                        'six==1.11.0',
+                        'ete3==3.1.1'],
       entry_points = {'console_scripts':['vespa=vespa.cli:main']})
 
 # MAFFT, Muscle, IQ-TREE

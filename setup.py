@@ -8,8 +8,8 @@ __version__ = re.search(r'__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
                         open('vespa/__init__.py').read()).group(1)
 
 
-if sys.version_info[0] < 3:
-      sys.exit('Requires Python >= 3(.5)')
+if sys.version_info < (3,6):
+      sys.exit('Requires Python >= 3(.6)')
 
 
 CLASSIFIERS = ['Environment :: Console',
@@ -19,7 +19,6 @@ CLASSIFIERS = ['Environment :: Console',
                'Natural Language :: English',
                'Operating System :: POSIX :: Linux',
                'Operating System :: MacOS :: MacOS X',
-               'Programming Language :: Python :: 3.5',
                'Programming Language :: Python :: 3.6',
                'Programming Language :: Python :: 3.7',
                'Topic :: Scientific/Engineering :: Bio-Informatics']
@@ -34,13 +33,15 @@ setup(name = 'vespa-slim',
       license = 'LICENSE',
       packages=['vespa'],
       zip_safe=True,
-      install_requires=['biopython>=1.72',
-                        'treeswift>=1.0.57',
-                        'tqdm>=4.24.0',
-                        'argh>=0.26.2',
-                        'pyyaml>=3.13',
-                        'six==1.11.0',
-                        'ete3==3.1.1'],
+      install_requires=['biopython==1.73',
+                        'treeswift==1.1.0',
+                        'tqdm==4.31.1',
+                        'argh==0.26.2',
+                        'pyyaml==3.13',
+                        'six==1.12.0',
+                        'ete3==3.1.1',
+                        'parmap==1.5.1',
+                        'pytest'],
       entry_points = {'console_scripts':['vespa=vespa.cli:main']})
 
 # MAFFT, Muscle, IQ-TREE

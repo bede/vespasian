@@ -59,6 +59,7 @@ def infer_gene_tree(alignment_path, tree_path, output_path, separator='|'):
     species_tree = treeswift.read_tree_newick(tree_path)
     gene_tree = species_tree.extract_tree_with(stems)
     gene_tree.rename_nodes(stems_names)
+    gene_tree.is_rooted = False
     unroot(gene_tree).write_tree_newick(output_path)
     return stems
 
@@ -257,7 +258,9 @@ def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir, separato
     #     gene_tree_path = f'{gene_trees_dir}/{family}.nwk'
     #     setup_site_models(family, family_path, alignment_path, gene_tree_path)
     #     setup_branch_site_models(family, family_path, alignment_path, gene_tree_path, branches)
-
+    print(alignments_paths)
+    print(output_dir)
+    print(gene_trees_dir)
     parmap.starmap(setup_family,
                    alignments_paths.items(),
                    output_dir,

@@ -59,6 +59,7 @@ def infer_gene_tree(alignment_path, tree_path, output_path, separator='|'):
     species_tree = treeswift.read_tree_newick(tree_path)
     gene_tree = species_tree.extract_tree_with(stems)
     gene_tree.rename_nodes(stems_names)
+    gene_tree.is_rooted = False
     unroot(gene_tree).write_tree_newick(output_path)
     return stems
 

@@ -85,23 +85,47 @@ def infer_gene_trees(input_path, tree_path, output_path, separator='|', progress
 
 
 def label_branch(tree_path, branch_label, leaf_labels, separator='|'):
-    '''Return Tree with codeml labelled ancestral branch or leaf node if children absent'''
+    '''
+    Return Tree with codeml labelled ancestral branch or leaf node if children absent
+    '''
+    # print(tree_path, branch_label, leaf_labels)
     tree = treeswift.read_tree_newick(tree_path)
     stems_names = {n.label.partition(separator)[0]: n.label for n in tree.traverse_leaves()}
     names_stems = {v: k for k, v in stems_names.items()}
-    if leaf_labels:  # internal node
-        expanded_leaf_labels = (stems_names.get(l) for l in leaf_labels)  # generate long names
-        mrca = tree.mrca(set(filter(None, expanded_leaf_labels)))  # fetch MRCA else throws RunTimeError
-        mrca.label = "'#1'"
-        if len(list(mrca.child_nodes())) < 2:
-            print(f'Lineage {branch_label} in {tree_path} contains singletons')
-            warnings.warn(f'Lineage {branch_label} in {tree_path} contains singletons')
-    else:  # leaf node
+    
+    tree_leaf_intersection = set(stems_names.keys()).intersection(leaf_labels)
+    intersection_size = len(tree_leaf_intersection)
+    # print('Intersection: ', f'{intersection_size}')
+    
+    if branch_label in stems_names and not leaf_labels:  # Branch to label is a leaf node
         labels_nodes = tree.label_to_node()
-        if branch_label in stems_names:  # leaf present
-            labels_nodes[stems_names[branch_label]].label += '#1'
+        labels_nodes[stems_names[branch_label]].label += '#1'
+
+    elif leaf_labels:  # Branch to label is an internal node
+        
+        if intersection_size < 2:  # Ignore singleton / leaf node branches
+            
+            raise RuntimeError(f'Not enough taxa present')
+        
+        expanded_leaf_labels = (stems_names.get(l) for l in leaf_labels)  # generate long names
+        
+        # allo, amee, rani = ('allo' if 'allo' in str(tree) else ''), ('amee' if 'amee' in str(tree) else ''), ('rani' if 'rani' in str(tree) else '')
+        # print(tree_path, list(filter(None, (allo, amee, rani))), f'({branch_label})')
+        # print('\tTrying to label: ', leaf_labels)
+        # print('\tTrying to label:', set(filter(None, expanded_leaf_labels)))
+
+        mrca = tree.mrca(set(filter(None, expanded_leaf_labels)))  # fetch MRCA else throws RunTimeError
+
+        mrca.label = "'#1'"
+        # if len(list(mrca.child_nodes())) < 2:
+        #     print(f'Lineage {branch_label} in {tree_path} contains singletons')
+        #     warnings.warn(f'Lineage {branch_label} in {tree_path} contains singletons')
+
+    
     if '#1' not in tree.newick():  # catch unlabelled branches, strictly necessary?
-        raise RuntimeError('hellp')
+        warnings.warn(f'Branch labelling skipped for {branch_label} in {tree_path}')
+        print(f'Branch labelling skipped for {branch_label} in {tree_path}')
+        raise RuntimeError()
     return tree
 
 
@@ -207,6 +231,7 @@ def setup_branch_site_models(family_name, family_path, alignment_path, gene_tree
             try:
                 labelled_tree = label_branch(f'{family_path}/tree.nwk', branch, leaves)
             except RuntimeError:  # RuntimeError: no MRCA for these nodes
+                # shutil.rmtree(branch_path)  # Is this needed??
                 continue
             for model, codeml_params in models.items():
                 for omega in models_omega[model]:
@@ -258,16 +283,17 @@ def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir, separato
     #     gene_tree_path = f'{gene_trees_dir}/{family}.nwk'
     #     setup_site_models(family, family_path, alignment_path, gene_tree_path)
     #     setup_branch_site_models(family, family_path, alignment_path, gene_tree_path, branches)
-    print(alignments_paths)
-    print(output_dir)
-    print(gene_trees_dir)
+    # print(alignments_paths)
+    # print(output_dir)
+    # print(gene_trees_dir)
     parmap.starmap(setup_family,
                    alignments_paths.items(),
                    output_dir,
                    gene_trees_dir,
                    branches,
                    pm_pbar=progress,
-                   pm_processes=os.cpu_count())
+                   # pm_processes=os.cpu_count())
+                   pm_processes=1)
 
     cmds = list_codeml_commands(output_dir, 'codeml')  # hack
     with open(f'{output_dir}/codeml-commands.sh', 'w+') as cmds_fh:

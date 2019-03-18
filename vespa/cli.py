@@ -30,13 +30,14 @@ def codeml_setup(input: 'path to directory containing aligned gene families',
                  branches: 'path to yaml file containing branches to be labelled' = None,
                  output: 'path to output directory' = 'codeml',
                  separator: 'character separating taxon name and identifier(s)' = '|',
+                 strict: 'label only branches with all taxa present in tree' = False,
                  warnings: 'show warnings' = False,
                  progress: 'show progress bar' = False):
     '''Create suite of branch and branch-site codeml environments'''
     configure_warnings(warnings)
     if not branches:
         print('No branch file supplied. Branch-site tests will not be configured.')
-    vespa.codeml_setup(input, gene_trees, branches, output, separator, progress)
+    vespa.codeml_setup(input, gene_trees, branches, output, separator, strict, progress)
 
 
 

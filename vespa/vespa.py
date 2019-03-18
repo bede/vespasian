@@ -83,46 +83,52 @@ def infer_gene_trees(input_path, tree_path, output_path, separator='|', progress
         raise NameError(f'The following taxa were not found in the species tree: \n'
                         f'{observed_stems.difference(species_tree_stems)}')
 
+def resolve_branch_nesting():
+    '''
+    Algorithm to determine nestedness of sets of leaves between specified branches
+    e.g. let branches a, b = {x, y}, {x, y ,z}. if t = {x, y} then a supercedes b
+    For now use data specific hack
+    '''
+    pass
 
-def label_branch(tree_path, branch_label, leaf_labels, separator='|'):
+
+def label_branch(tree_path, branch_label, leaf_labels, separator='|', strict=False):
     '''
     Return Tree with codeml labelled ancestral branch or leaf node if children absent
+    Default behaviour is to require >= 2 taxa to be present
+    Strict behaviour is to requires all taxa to be present in tree
+    Throws RuntimeError() when a branch should be skipped
     '''
-    # print(tree_path, branch_label, leaf_labels)
     tree = treeswift.read_tree_newick(tree_path)
     stems_names = {n.label.partition(separator)[0]: n.label for n in tree.traverse_leaves()}
     names_stems = {v: k for k, v in stems_names.items()}
-    
-    tree_leaf_intersection = set(stems_names.keys()).intersection(leaf_labels)
-    intersection_size = len(tree_leaf_intersection)
-    # print('Intersection: ', f'{intersection_size}')
-    
-    if branch_label in stems_names and not leaf_labels:  # Branch to label is a leaf node
+    stems = set(stems_names.keys())
+
+    if branch_label in stems_names and not leaf_labels:  # We're labelling a leaf node
         labels_nodes = tree.label_to_node()
         labels_nodes[stems_names[branch_label]].label += '#1'
 
-    elif leaf_labels:  # Branch to label is an internal node
+    elif leaf_labels:  # We're labelling an internal node
+        tree_leaf_intersection = set(stems_names.keys()).intersection(leaf_labels)  # Coerces labels to set()
+        intersection_size = len(tree_leaf_intersection)
+        required_taxa = len(leaf_labels) if strict else 2  # Ignore singleton branches in default mode
         
-        if intersection_size < 2:  # Ignore singleton / leaf node branches
-            
-            raise RuntimeError(f'Not enough taxa present')
-        
+        if intersection_size < required_taxa: 
+            warnings.warn(f'Insufficient taxa present to label {branch_label} in {tree_path}')
+            print(f'Insufficient taxa present to label {branch_label} in {tree_path}')
+            raise RuntimeError()
         expanded_leaf_labels = (stems_names.get(l) for l in leaf_labels)  # generate long names
-        
-        # allo, amee, rani = ('allo' if 'allo' in str(tree) else ''), ('amee' if 'amee' in str(tree) else ''), ('rani' if 'rani' in str(tree) else '')
-        # print(tree_path, list(filter(None, (allo, amee, rani))), f'({branch_label})')
-        # print('\tTrying to label: ', leaf_labels)
-        # print('\tTrying to label:', set(filter(None, expanded_leaf_labels)))
-
         mrca = tree.mrca(set(filter(None, expanded_leaf_labels)))  # fetch MRCA else throws RunTimeError
 
-        mrca.label = "'#1'"
-        # if len(list(mrca.child_nodes())) < 2:
-        #     print(f'Lineage {branch_label} in {tree_path} contains singletons')
-        #     warnings.warn(f'Lineage {branch_label} in {tree_path} contains singletons')
+        # UGLY frog-specific hack !!!! See above stub resolve_branch_nesting()
+        if branch_label == 'dendrobatoides' and 'allo' in stems and 'amee' in stems and not 'rani' in stems:
+            warnings.warn(f'Incomplete dendrobatoides branch is a superset and will not be labelled for {tree_path}')
+            print(f'Incomplete dendrobatoides branch is a superset and will not be labelled for {tree_path}')
+            raise RuntimeError()
 
-    
-    if '#1' not in tree.newick():  # catch unlabelled branches, strictly necessary?
+        mrca.label = "'#1'"
+
+    if '#1' not in tree.newick():  # Catch unlabelled branches
         warnings.warn(f'Branch labelling skipped for {branch_label} in {tree_path}')
         print(f'Branch labelling skipped for {branch_label} in {tree_path}')
         raise RuntimeError()
@@ -209,7 +215,7 @@ def setup_site_models(family_name, family_path, alignment_path, gene_tree_path):
             ControlFile(model, **codeml_params).write(f'{run_dir}/codeml.ctl')
 
 
-def setup_branch_site_models(family_name, family_path, alignment_path, gene_tree_path, branches):
+def setup_branch_site_models(family_name, family_path, alignment_path, gene_tree_path, branches, separator, strict):
     '''Configure codeml branch-site model environments'''
     models = {
         'modelA': {'model': 2, 'NSsites': 2, 'fix_omega': 0, 'ncatG': 4},
@@ -229,7 +235,7 @@ def setup_branch_site_models(family_name, family_path, alignment_path, gene_tree
         for branch, leaves in branches.items():
             branch_path = f'{family_path}/{family_name}_{branch}'
             try:
-                labelled_tree = label_branch(f'{family_path}/tree.nwk', branch, leaves)
+                labelled_tree = label_branch(f'{family_path}/tree.nwk', branch, leaves, separator, strict)
             except RuntimeError:  # RuntimeError: no MRCA for these nodes
                 # shutil.rmtree(branch_path)  # Is this needed??
                 continue
@@ -260,23 +266,23 @@ def list_codeml_commands(path, codeml_binary_path):
     return [f'cd {c} && {codeml_binary_path}' for c in codeml_dirs_no_prefix]
 
 
-def setup_family(family, alignment_path, output_dir, gene_trees_dir, branches):
+def setup_family(family, alignment_path, output_dir, gene_trees_dir, branches, separator, strict):
     '''Parallelisable family level setup function'''
     family_path = f'{output_dir}/{family}'
     os.makedirs(f'{family_path}', exist_ok=True)
     gene_tree_path = f'{gene_trees_dir}/{family}.nwk'
     setup_site_models(family, family_path, alignment_path, gene_tree_path)
-    setup_branch_site_models(family, family_path, alignment_path, gene_tree_path, branches)
+    setup_branch_site_models(family, family_path, alignment_path, gene_tree_path, branches, separator, strict)
 
 
-def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir, separator, progress=False):
+def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir, separator, strict, progress=False):
     '''Configure site and branch-site test environment given alignments, gene trees and branches'''
     alignment_paths = [f'{families_dir}/{fn}' for fn in os.listdir(families_dir)
                     if fn.endswith(('.fa', '.fasta'))]
     alignments_paths = {Path(a).stem: a for a in alignment_paths}
     branches = parse_branch_file(branch_file) if branch_file else None
 
-    # Single threaded family setup
+    # # Single threaded family setup
     # for family, alignment_path in tqdm.tqdm(alignments_paths.items(), disable=not progress):
     #     family_path = f'{output_dir}/{family}'
     #     os.makedirs(f'{family_path}', exist_ok=True)
@@ -286,14 +292,16 @@ def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir, separato
     # print(alignments_paths)
     # print(output_dir)
     # print(gene_trees_dir)
+
     parmap.starmap(setup_family,
                    alignments_paths.items(),
                    output_dir,
                    gene_trees_dir,
                    branches,
+                   separator,
+                   strict,
                    pm_pbar=progress,
-                   # pm_processes=os.cpu_count())
-                   pm_processes=1)
+                   pm_processes=os.cpu_count())
 
     cmds = list_codeml_commands(output_dir, 'codeml')  # hack
     with open(f'{output_dir}/codeml-commands.sh', 'w+') as cmds_fh:

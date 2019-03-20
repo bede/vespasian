@@ -9,7 +9,7 @@ __version__ = re.search(r'__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
 
 
 if sys.version_info < (3,6):
-      sys.exit('Requires Python >= 3(.6)')
+      sys.exit('Requires Python >= 3.6')
 
 
 CLASSIFIERS = ['Environment :: Console',
@@ -26,7 +26,7 @@ CLASSIFIERS = ['Environment :: Console',
 
 setup(name = 'vespa-slim',
       version = __version__,
-      description = 'Selective pressure analysis toolkit',
+      description = 'Toolkit for genome scale evolutionary hypothesis testing',
       url = '',
       author = "Bede Constantinides, Mary O'Connell",
       author_email = 'bedeabc@gmail.com',
@@ -43,5 +43,3 @@ setup(name = 'vespa-slim',
                         'parmap==1.5.1',
                         'pytest'],
       entry_points = {'console_scripts':['vespa=vespa.cli:main']})
-
-# MAFFT, Muscle, IQ-TREE

@@ -28,7 +28,10 @@ def parse_branch_file(branch_file):
 
 
 def unroot(tree):
-    '''Trifurcate bifurcating Treeswift Tree (as required by codeml)'''
+    '''
+    Trifurcate bifurcating Treeswift Tree (as required by codeml)
+    Could possibly be replaced by TreeSwift's new deroot function?
+    '''
     for node in tree.traverse_levelorder():
         if node.is_root():
             if node.num_children() > 2:
@@ -111,35 +114,40 @@ def prune_redundant_branches(branches, tree_path, separator):
 def label_branch(tree_path, branch_label, leaf_labels, separator='|', strict=False):
     '''
     Return Tree with codeml labelled ancestral branch or leaf node if children absent
-    Default behaviour is to require >= 2 taxa to be present
-    Strict behaviour is to requires all taxa to be present in tree
+    Default behaviour is to require >= 2 specified taxa to be present
+    Strict behaviour requires all taxa to be present in tree
     Throws RuntimeError() when a branch should be skipped
+    Requires leaf nodes be specified without values
     '''
     tree = treeswift.read_tree_newick(tree_path)
-    stems_names = {n.label.partition(separator)[0]: n.label for n in tree.traverse_leaves()}
-    names_stems = {v: k for k, v in stems_names.items()}
-    stems = set(stems_names.keys())
+    taxa_longnames = {n.label.partition(separator)[0]: n.label for n in tree.traverse_leaves()}
+    taxa = set(taxa_longnames.keys())
 
-    if branch_label in stems_names and not leaf_labels:  # We're labelling a leaf node
-        labels_nodes = tree.label_to_node()
-        labels_nodes[stems_names[branch_label]].label += '#1'
-
-    elif leaf_labels:  # We're labelling an internal node
-        tree_leaf_intersection = set(stems_names.keys()).intersection(leaf_labels)  # Coerces to set
+    if leaf_labels:  # Branch is internal node
+        tree_leaf_intersection = set(taxa_longnames.keys()).intersection(leaf_labels)  # Coerces to set
         intersection_size = len(tree_leaf_intersection)
         required_taxa = len(leaf_labels) if strict else 2  # Ignore singletons by default
         
         if intersection_size < required_taxa: 
-            warnings.warn(f'Insufficient taxa present to label {branch_label} in {tree_path}')
-            print(f'Insufficient taxa present to label {branch_label} in {tree_path}')
+            warnings.warn(f'Insufficient taxa present to label branch {branch_label} in {tree_path}')
+            print(f'Insufficient taxa present to label branch {branch_label} in {tree_path}')
             raise RuntimeError()
-        expanded_leaf_labels = (stems_names.get(l) for l in leaf_labels)  # Generate long names
+
+        expanded_leaf_labels = (taxa_longnames.get(l) for l in leaf_labels)  # Generate long names
         mrca = tree.mrca(set(filter(None, expanded_leaf_labels)))
         mrca.label = "'#1'"
 
-    if '#1' not in tree.newick():  # Catch unlabelled branches
-        warnings.warn(f'Branch labelling skipped for {branch_label} in {tree_path}')
-        print(f'Branch labelling skipped for {branch_label} in {tree_path}')
+    else:  # Branch is leaf node
+        if branch_label not in taxa:
+            warnings.warn(f'Insufficient taxa present to label leaf node {branch_label} in {tree_path}')
+            print(f'Insufficient taxa present to label leaf node {branch_label} in {tree_path}')
+            raise RuntimeError()
+        labels_nodes = tree.label_to_node()
+        labels_nodes[taxa_longnames[branch_label]].label += '#1'
+
+    if '#1' not in tree.newick():  # Catch-all for unlabelled branches
+        warnings.warn(f'Skipped labelling {branch_label} in {tree_path}')
+        print(f'Skipped labelling {branch_label} in {tree_path}')
         raise RuntimeError()
     return tree
 

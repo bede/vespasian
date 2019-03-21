@@ -63,6 +63,7 @@ def infer_gene_tree(alignment_path, tree_path, output_path, separator='|'):
     gene_tree = species_tree.extract_tree_with(stems)
     gene_tree.rename_nodes(stems_names)
     gene_tree.is_rooted = False
+    gene_tree.ladderize()
     unroot(gene_tree).write_tree_newick(output_path)
     return stems
 
@@ -323,6 +324,7 @@ def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir, separato
     # print(output_dir)
     # print(gene_trees_dir)
 
+    # Nightmare for debugging, switch to single threaded code above
     parmap.starmap(setup_family,
                    alignments_paths.items(),
                    output_dir,

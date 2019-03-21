@@ -305,14 +305,14 @@ def setup_family(family, alignment_path, output_dir, gene_trees_dir, branches, s
 
 
 def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir, separator, strict,
-                 progress=False):
+                 threads=os.cpu_count(), progress=False):
     '''Configure site and branch-site test environment given alignments, gene trees and branches'''
     alignment_paths = [f'{families_dir}/{fn}' for fn in os.listdir(families_dir)
                     if fn.endswith(('.fa', '.fasta'))]
     alignments_paths = {Path(a).stem: a for a in alignment_paths}
     branches = parse_branch_file(branch_file) if branch_file else None
 
-    # Single threaded family setup
+    # Single threaded family setup, useful for debugging
     # for family, alignment_path in tqdm.tqdm(alignments_paths.items(), disable=not progress):
     #     family_path = f'{output_dir}/{family}'
     #     os.makedirs(f'{family_path}', exist_ok=True)
@@ -320,11 +320,9 @@ def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir, separato
     #     setup_site_models(family, family_path, alignment_path, gene_tree_path)
     #     setup_branch_site_models(family, family_path, alignment_path, gene_tree_path, branches,
     #                              separator, strict)
-    # print(alignments_paths)
-    # print(output_dir)
-    # print(gene_trees_dir)
 
-    # Nightmare for debugging, switch to single threaded code above
+    # Was a nightmare for debugging until pm_parallel logic was added to NOT use multiprocessing.Pool
+    # When `--threads 1`, allowing switch to run in single process
     parmap.starmap(setup_family,
                    alignments_paths.items(),
                    output_dir,
@@ -333,7 +331,9 @@ def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir, separato
                    separator,
                    strict,
                    pm_pbar=progress,
-                   pm_processes=os.cpu_count())
+                   pm_parallel=False if threads == 1 else True,
+                   pm_processes=threads,
+                   pm_chunksize=10)
 
     cmds = list_codeml_commands(output_dir, 'codeml')  # hack
     with open(f'{output_dir}/codeml-commands.sh', 'w+') as cmds_fh:

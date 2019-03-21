@@ -218,8 +218,7 @@ def setup_site_models(family_name, family_path, alignment_path, gene_tree_path):
         'm8a': [1]
     }
 
-    alignment = list(AlignIO.parse(alignment_path, 'fasta'))
-    AlignIO.write(alignment[0], f'{family_path}/align.fa', 'fasta')
+    shutil.copy(alignment_path, f'{family_path}/align.fa')
     util.convert_phylip(f'{family_path}/align.fa', f'{family_path}/align.phy')
     shutil.copy(gene_tree_path, f'{family_path}/tree.nwk')
 
@@ -228,8 +227,10 @@ def setup_site_models(family_name, family_path, alignment_path, gene_tree_path):
             codeml_params['omega'] = omega
             run_dir = f'{family_path}/{family_name}/{model}/Omega{omega}'
             os.makedirs(run_dir, exist_ok=True)
-            shutil.copy(f'{family_path}/tree.nwk', run_dir)
-            shutil.copy(f'{family_path}/align.fa', f'{run_dir}/align.fa')
+            if not os.path.lexists(f'{run_dir}/tree.nwk'):
+                os.symlink(f'{family_path}/tree.nwk', f'{run_dir}/tree.nwk')
+            if not os.path.lexists(f'{run_dir}/align.fa'):
+                os.symlink(f'{family_path}/align.fa', f'{run_dir}/align.fa')
             ControlFile(model, **codeml_params).write(f'{run_dir}/codeml.ctl')
 
 
@@ -273,7 +274,8 @@ def setup_branch_site_models(family_name, family_path, alignment_path, gene_tree
                     run_dir = f'{branch_path}/{model}/Omega{omega}'
                     os.makedirs(run_dir, exist_ok=True)
                     labelled_tree.write_tree_newick(f'{run_dir}/tree.nwk')
-                    shutil.copy(f'{family_path}/align.fa', f'{run_dir}/align.fa')
+                    if not os.path.lexists(f'{run_dir}/align.fa'):
+                        os.symlink(f'{family_path}/align.fa', f'{run_dir}/align.fa')
                     ControlFile(model, **codeml_params).write(f'{run_dir}/codeml.ctl')
 
 

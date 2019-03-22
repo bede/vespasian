@@ -3,7 +3,7 @@ import warnings
 
 import argh
 
-from vespa import vespa, util
+from vespa import vespa, util, __version__
 
 
 
@@ -48,10 +48,16 @@ def reformat_environments(input: 'path to directory containing codeml environmen
     util.reformat_environments(input)
 
 
+def version():
+    '''Show version'''
+    print(__version__)
+
+
 def main():
     argh.dispatch_commands([infer_gene_trees,
                             codeml_setup,
-                            reformat_environments])
+                            reformat_environments,
+                            version])
 
 
 if __name__ == '__main__':

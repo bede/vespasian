@@ -26,7 +26,7 @@ CLASSIFIERS = ['Environment :: Console',
 
 setup(name = 'vespa-slim',
       version = __version__,
-      description = 'Toolkit for genome scale evolutionary hypothesis testing',
+      description = 'Genome scale evolutionary hypothesis testing',
       url = '',
       author = "Bede Constantinides, Mary O'Connell",
       author_email = 'bedeabc@gmail.com',

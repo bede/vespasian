@@ -27,12 +27,20 @@ Vespa-slim is intended to be a faster and more user friendly alternative to [VES
 
 
 
-### Features
+### Remaining features
 
 - Snakemake orchestrated execution of model testing
 
   - Cluster execution
-- IQ-TREE or ParGenes
+
+- Reporting
+
+  - LRTs
+  - Selected site visualisation
+  - Summary table
+  - Function integration
+
+- IQ-TREE or ParGenes integration?
 
   
 
@@ -41,7 +49,7 @@ Vespa-slim is intended to be a faster and more user friendly alternative to [VES
 ### Step 1: gene tree inference from a species tree
 
 - Required input;
-  - **`input`** Path to directory containing *aligned* orthologous gene families as individual fasta files. Fasta headers should contain a taxonomic identifier (mirroring tip labels in the tree file), followed by separator character ('`|`' by default).
+  - **`input`** Path to directory containing orthologous gene families as individual nucleotide alignments in fasta format. These should be in frame and free from stop codons. Fasta headers should contain a taxonomic identifier (mirroring tip labels in the tree file), followed by separator character ('`|`' by default).
   - **`tree`** Path to species tree in Newick format. Tip labels must correspond to fasta headers before the separator character.
 - Output:
   - Directory (default name `gene-trees`) containing minimal gene trees for each family.
@@ -79,7 +87,7 @@ optional arguments:
 
 - Optional input:
 
-  - **`—-branches BRANCHES`**  Path to yaml file containing a *mapping* of lineages to be labelled for evaluation of lineage-specific evolutionary signal. To label an individual leaf node taxon, specify its name followed by a colon. To label an internal node, choose a suitable name (e.g. `carnivora`) followed by a colon and its corresponding leaf nodes inside square brackets (a *sequence* in yaml) and separated by commas. For internal nodes, all child nodes present in the species tree must be specified ,even if they are not present in all of the gene families.
+  - **`—-branches BRANCHES`**  Path to yaml file containing a *mapping* of lineages to be labelled for evaluation of lineage-specific evolutionary signal. To label an individual leaf node taxon, specify its name followed by a colon. To label an internal node, choose a suitable name (e.g. `carnivora`) followed by a colon and its corresponding leaf nodes inside square brackets (a *sequence* in yaml) and separated by commas. For internal nodes, all child nodes present in the species tree must be specified, even if they are not present in all of the gene families.
 
     - ```yaml
       cat:

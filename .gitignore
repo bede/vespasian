@@ -3,6 +3,7 @@
 __pycache__/
 .cache/
 dist/
+build/
 kindel.egg-info/
 vespa_slim.egg-info/
 .pytest_cache/
@@ -12,3 +13,5 @@ tests/data/gene-trees/
 tests/data/gene-trees-*
 tests/data/ali/
 bin/
+froglets/
+ptw.sh

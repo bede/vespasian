@@ -1,5 +1,6 @@
 import os
 import shutil
+import textwrap
 import warnings
 
 import yaml
@@ -279,21 +280,49 @@ def setup_branch_site_models(family_name, family_path, alignment_path, gene_tree
                     ControlFile(model, **codeml_params).write(f'{run_dir}/codeml.ctl')
 
 
-def list_codeml_dirs(path):
+def gather_codeml_dirs(path):
     '''Recursively finds codeml directory paths within a target directory tree'''
     for entry in os.scandir(path):
         if entry.is_dir(follow_symlinks=False):
             if 'Omega' in entry.name:
                 yield entry.path
             else:
-                yield from list_codeml_dirs(entry.path)
+                yield from gather_codeml_dirs(entry.path)
 
 
-def list_codeml_commands(path, codeml_binary_path):
+def gather_codeml_commands(path, codeml_binary_path):
     '''Generates list of codeml commands to be executed'''
-    codeml_dirs = list_codeml_dirs(path)
+    codeml_dirs = gather_codeml_dirs(path)
     codeml_dirs_no_prefix = [Path(p).relative_to(path) for p in codeml_dirs]  # Relative to codeml/
     return [f'cd {c} && {codeml_binary_path}' for c in codeml_dirs_no_prefix]
+
+
+def generate_codeml_commands(output_dir, codeml_binary_path='codeml'):
+    '''Gather and write codeml commands to file'''
+    cmds = gather_codeml_commands(output_dir, codeml_binary_path)
+    with open(f'{output_dir}/codeml-commands.sh', 'w+') as cmds_fh:
+        cmds_fh.write('\n'.join(cmds))
+
+
+def generate_snakefile(output_dir):
+    '''Write Snakemake Snakefile inside codeml root directory'''
+    snakefile =  '''
+        with open('codeml-commands.sh', 'r') as fh:
+            commands = [l.strip() for l in fh if l]
+            run_dirs = [c[3:].partition(' &&')[0] for c in commands]
+
+        rule all:
+            input:
+                expand('{od}/out', od=run_dirs)
+
+        rule run:
+            output:
+                '{od}/out'
+            shell:
+                'cd {wildcards.od} && codeml')
+    '''
+    with open(f'{output_dir}/Snakefile', 'w+') as snakefile_fh:
+        snakefile_fh.write(textwrap.dedent(snakefile).strip())
 
 
 def setup_family(family, alignment_path, output_dir, gene_trees_dir, branches, separator, strict):
@@ -314,16 +343,7 @@ def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir, separato
     alignments_paths = {Path(a).stem: a for a in alignment_paths}
     branches = parse_branch_file(branch_file) if branch_file else None
 
-    # Single threaded family setup, useful for debugging
-    # for family, alignment_path in tqdm.tqdm(alignments_paths.items(), disable=not progress):
-    #     family_path = f'{output_dir}/{family}'
-    #     os.makedirs(f'{family_path}', exist_ok=True)
-    #     gene_tree_path = f'{gene_trees_dir}/{family}.nwk'
-    #     setup_site_models(family, family_path, alignment_path, gene_tree_path)
-    #     setup_branch_site_models(family, family_path, alignment_path, gene_tree_path, branches,
-    #                              separator, strict)
-
-    # Was a nightmare for debugging until pm_parallel logic was added to NOT use multiprocessing.Pool
+    # Was a nightmare to debug until pm_parallel logic was added to NOT use multiprocessing.Pool
     # When `--threads 1`, allowing switch to run in single process
     parmap.starmap(setup_family,
                    alignments_paths.items(),
@@ -337,6 +357,5 @@ def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir, separato
                    pm_processes=threads,
                    pm_chunksize=10)
 
-    cmds = list_codeml_commands(output_dir, 'codeml')  # hack
-    with open(f'{output_dir}/codeml-commands.sh', 'w+') as cmds_fh:
-        cmds_fh.write('\n'.join(cmds))
+    generate_codeml_commands(output_dir)
+    generate_snakefile(output_dir)

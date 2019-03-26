@@ -1,6 +1,6 @@
 # vespa-slim
 
-Genome scale detection of signatures of positive selection from orthologous gene families through automatic model testing. Given a collection of fasta files containing orthologous gene families, infer gene trees from a species tree and evaluate site and lineage specific models of evolution using PAML's codeml. Model testing is CPU intensive but embarrassingly parallel, and may be run locally or using a cluster via Snakemake. 
+Genome scale detection of signatures of positive selection from orthologous gene families through automatic model testing. Given a collection of fasta alignments of orthologous gene families, infer gene trees from a species tree and evaluate site and lineage-specific models of evolution using PAML. Model testing is CPU intensive but embarrassingly parallel, and may be run locally or using a cluster via Snakemake.
 
 Vespa-slim is intended to be a faster and more user friendly alternative to [VESPA](https://peerj.com/articles/cs-118/) by Webb et al. (2017). 
 
@@ -14,15 +14,13 @@ Vespa-slim is intended to be a faster and more user friendly alternative to [VES
 
 - `infer-trees`
 
-#### `codeml-setup` ✅ 
+#### `codeml-setup` ✅ 🧵 🐍
 
-- `configure-models` 🧵
-- `test-models` 🐍
+- Rename `configure-models` and `test-models`
 
 #### `codeml-reader` 🔜 
 
-- `report`
-- Still reliant on existing VESPA for reporting on model test output
+- Rename `report`
 
 
 
@@ -42,7 +40,13 @@ Vespa-slim is intended to be a faster and more user friendly alternative to [VES
 
 - IQ-TREE or ParGenes integration?
 
-  
+
+### Todo
+
+- [ ] Implement codeml-reader
+- [ ] Better logging
+
+
 
 ## Usage
 
@@ -96,7 +100,9 @@ optional arguments:
 
 - Output:
 
-  - Directory (default name `codeml`) containing nested directory structure of models and starting parameters for each gene family, and file containing a list of commands to execute these model tests.
+  - Directory (default name `codeml`) containing nested directory structure of models and starting parameters for each gene family.
+  - File `codeml-commands.sh` containing list of commands to execute the model tests
+  - File `Snakefile` for running the contents of `codeml-commands.sh` locally or using a cluster
 
   
 
@@ -129,3 +135,32 @@ optional arguments:
   -w, --warnings        show warnings (default: False)
   -p, --progress        show progress bar (default: False)
 ```
+
+
+
+### Step 3: Run models
+
+- Ensure `codeml` binary is present inside `$PATH`
+- `cd codeml` (the directory created by `codeml-setup` above)
+
+- *Local execution*
+
+  - Using GNU parallel
+
+    - `parallel --bar :::: codeml-commands.sh`
+  - Using Snakemake
+    - `snakemake`
+
+- *Cluster execution*
+  - `snakemake --jobs MAXJOBS --cluster OPTIONS`
+
+    - SGE example:
+      - `snakemake --jobs 100 --cluster "qsub -cwd -V"`
+
+    - Profiles [are available for other cluster platforms](https://snakemake.readthedocs.io/en/stable/executable.html#profiles)
+
+
+
+### Step 4: Analyse model output, find positively selected sites
+
+For now it is necessary to use the original [VESPA](https://github.com/aewebb80/VESPA) for this purpose

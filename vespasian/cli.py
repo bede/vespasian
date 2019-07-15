@@ -3,7 +3,7 @@ import warnings
 
 import argh
 
-from vespa import vespa, util, __version__
+from vespasian import vespasian, util, __version__
 
 
 
@@ -23,7 +23,7 @@ def infer_gene_trees(input: 'path to directory containing gene families',
                      progress: 'show progress bar' = False):
     '''Create gene trees by pruning a given species tree'''
     configure_warnings(warnings)
-    vespa.infer_gene_trees(input, tree, output, separator, progress)
+    vespasian.infer_gene_trees(input, tree, output, separator, progress)
 
 
 def codeml_setup(input: 'path to directory containing aligned gene families',
@@ -39,12 +39,12 @@ def codeml_setup(input: 'path to directory containing aligned gene families',
     configure_warnings(warnings)
     if not branches:
         print('No branch file supplied. Branch-site tests will not be configured.')
-    vespa.codeml_setup(input, gene_trees, branches, output, separator, strict, threads, progress)
+    vespasian.codeml_setup(input, gene_trees, branches, output, separator, strict, threads, progress)
 
 
 
 def reformat_environments(input: 'path to directory containing codeml environments'):
-    '''Reformat vespa-slim codeml environments for use with legacy codeml_reader'''
+    '''Reformat vespasian codeml environments for use with legacy codeml_reader'''
     util.reformat_environments(input)
 
 

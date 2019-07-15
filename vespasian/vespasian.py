@@ -13,7 +13,7 @@ from pathlib import Path
 
 from Bio import AlignIO, SeqIO
 
-from vespa import util
+from vespasian import util
 
 
 

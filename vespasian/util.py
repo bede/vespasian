@@ -5,7 +5,7 @@ import tqdm
 
 from Bio import AlignIO, SeqIO
 
-from vespa import vespa
+from vespasian import vespasian
 
 
 def convert_phylip(fasta_path, phylip_path):
@@ -27,7 +27,7 @@ def convert_phylip(fasta_path, phylip_path):
 
 
 def reformat_environments(codeml_root):
-    '''Reformat vespa-slim codeml environments for use with legacy codeml_reader'''
+    '''Reformat vespasian codeml environments for use with legacy codeml_reader'''
     codeml_envs = vespa.list_codeml_dirs(codeml_root)
     for env in codeml_envs:
         convert_phylip(f'{env}/align.fa', f'{env}/align.phy')

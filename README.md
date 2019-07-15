@@ -1,8 +1,8 @@
-# vespa-slim
+# Vespasian
 
 Genome scale detection of signatures of positive selection from orthologous gene families through automatic model testing. Given a collection of fasta alignments of orthologous gene families, infer gene trees from a species tree and evaluate site and lineage-specific models of evolution using PAML. Model testing is CPU intensive but embarrassingly parallel, and may be run locally or using a cluster via Snakemake.
 
-Vespa-slim is intended to be a faster and more user friendly alternative to [VESPA](https://peerj.com/articles/cs-118/) by Webb et al. (2017). 
+Vespasian is intended to be a faster and more user friendly alternative to [VESPA](https://peerj.com/articles/cs-118/) by Webb et al. (2017). 
 
 
 
@@ -21,8 +21,6 @@ Vespa-slim is intended to be a faster and more user friendly alternative to [VES
 #### `codeml-reader` 🔜 
 
 - Rename `report`
-
-
 
 
 ### Remaining features
@@ -44,8 +42,39 @@ Vespa-slim is intended to be a faster and more user friendly alternative to [VES
 ### Todo
 
 - [ ] Implement codeml-reader
-- [ ] Better logging
+- [ ] Improve logging
 
+
+## Installation
+
+### With `conda`
+
+Using bundled environment:
+```bash
+conda env create -f conda.yml
+```
+Or roll your own:
+```bash
+conda create -n vespasian python=3 paml parallel
+conda activate vespasian
+pip install vespasian
+```
+
+### From PyPI
+
+```bash
+# Manually install PAML/CodeML
+pip install vespa
+
+```
+
+### From tarball
+
+```bash
+tar xzf vespasian-0.2.0.tar.gz
+pip install /path/to/vespasian-0.2.0/
+
+```
 
 
 ## Usage
@@ -53,14 +82,14 @@ Vespa-slim is intended to be a faster and more user friendly alternative to [VES
 ### Step 1: gene tree inference from a species tree
 
 - Required input;
-  - **`input`** Path to directory containing orthologous gene families as individual nucleotide alignments in fasta format. These should be in frame and free from stop codons. Fasta headers should contain a taxonomic identifier (mirroring tip labels in the tree file), followed by separator character ('`|`' by default).
+  - **`input`** Path to directory containing orthologous gene families as individual nucleotide alignments in fasta format. These should be in frame and free from stop codons. Fasta headers should contain a taxonomic identifier (mirroring tip labels in the tree file), followed by separator character ('`|`' by default). A minimum of seven taxa must be present.
   - **`tree`** Path to species tree in Newick format. Tip labels must correspond to fasta headers before the separator character.
 - Output:
   - Directory (default name `gene-trees`) containing minimal gene trees for each family.
 
 ```
-$ vespa infer-gene-trees -h
-usage: vespa infer-gene-trees [-h] [-o OUTPUT] [-s SEPARATOR] [-w] [-p]
+$ vespasian infer-gene-trees -h
+usage: vespasian infer-gene-trees [-h] [-o OUTPUT] [-s SEPARATOR] [-w] [-p]
                               input tree
 
 Create gene trees by pruning a given species tree
@@ -109,8 +138,8 @@ optional arguments:
   N.B. By default, at least two taxa must be present within a given family for a named internal node to be labelled. Use `--strict` to skip named internal nodes unless all child leaf nodes are present. 
 
 ```
-$ vespa codeml-setup -h
-usage: vespa codeml-setup [-h] [-b BRANCHES] [-o OUTPUT]
+$ vespasian codeml-setup -h
+usage: vespasian codeml-setup [-h] [-b BRANCHES] [-o OUTPUT]
                           [--separator SEPARATOR] [--strict] [-w] [-p]
                           input gene-trees
 
@@ -163,4 +192,4 @@ optional arguments:
 
 ### Step 4: Analyse model output, find positively selected sites
 
-For now it is necessary to use the original [VESPA](https://github.com/aewebb80/VESPA) for this purpose
+For now it is necessary to use the original [VESPA](https://github.com/aewebb80/vespa) for this purpose

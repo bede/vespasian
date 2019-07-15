@@ -5,7 +5,7 @@ from setuptools import setup
 
 
 __version__ = re.search(r'__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
-                        open('vespa/__init__.py').read()).group(1)
+                        open('vespasian/__init__.py').read()).group(1)
 
 
 if sys.version_info < (3,6):
@@ -13,7 +13,6 @@ if sys.version_info < (3,6):
 
 
 CLASSIFIERS = ['Environment :: Console',
-               'Environment :: MacOS X',
                'Intended Audience :: Science/Research',
                'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
                'Natural Language :: English',
@@ -24,22 +23,22 @@ CLASSIFIERS = ['Environment :: Console',
                'Topic :: Scientific/Engineering :: Bio-Informatics']
 
 
-setup(name = 'vespa-slim',
+setup(name = 'vespasian',
       version = __version__,
       description = 'Genome scale evolutionary hypothesis testing',
       url = '',
       author = "Bede Constantinides, Mary O'Connell",
       author_email = 'bedeabc@gmail.com',
       license = 'LICENSE',
-      packages=['vespa'],
+      packages=['vespasian'],
       zip_safe=True,
-      install_requires=['biopython==1.73',
-                        'treeswift==1.1.0',
-                        'tqdm==4.31.1',
-                        'argh==0.26.2',
-                        'pyyaml==3.13',
-                        'six==1.12.0',
-                        'ete3==3.1.1',
-                        'parmap==1.5.1',
-                        'pytest'],
-      entry_points = {'console_scripts':['vespa=vespa.cli:main']})
+      install_requires=['biopython',
+                        'treeswift',
+                        'tqdm',
+                        'argh',
+                        'pyyaml',
+                        'ete3',
+                        'parmap',
+                        'pytest',
+                        'snakemake'],
+      entry_points = {'console_scripts':['vespasian=vespasian.cli:main']})

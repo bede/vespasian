@@ -53,8 +53,13 @@ def test_codeml_setup_unlabelled():
     run_cmd = run('vespasian codeml-setup frog-families gene-trees --output codeml-unlabelled', cwd=data_dir)
     print(run_cmd.stdout, run_cmd.stderr)
 
-def test_codeml_binary():
-    subprocess.run('codeml')
-    os.remove('rst')
-    os.remove('rst1')
-    os.remove('rub')
+
+# Slow tests, run with --slow
+
+
+@pytest.mark.slow
+def test_codeml_single_family():
+    sample_workspace = 'codeml/s_4787/s_4787/m3Discrtk3/Omega0'
+    run(f'codeml', cwd=f'{data_dir}/{sample_workspace}')
+    run(f'rm 2NG* rst* rub out', cwd=f'{data_dir}/{sample_workspace}')
+

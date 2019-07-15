@@ -290,16 +290,16 @@ def gather_codeml_dirs(path):
                 yield from gather_codeml_dirs(entry.path)
 
 
-def gather_codeml_commands(path, codeml_binary_path):
+def gather_codeml_commands(path):
     '''Generates list of codeml commands to be executed'''
     codeml_dirs = gather_codeml_dirs(path)
     codeml_dirs_no_prefix = [Path(p).relative_to(path) for p in codeml_dirs]  # Relative to codeml/
-    return [f'cd {c} && {codeml_binary_path}' for c in codeml_dirs_no_prefix]
+    return [f'cd {c} && codeml' for c in codeml_dirs_no_prefix]
 
 
-def generate_codeml_commands(output_dir, codeml_binary_path='codeml'):
+def generate_codeml_commands(output_dir):
     '''Gather and write codeml commands to file'''
-    cmds = gather_codeml_commands(output_dir, codeml_binary_path)
+    cmds = gather_codeml_commands(output_dir)
     with open(f'{output_dir}/codeml-commands.sh', 'w+') as cmds_fh:
         cmds_fh.write('\n'.join(cmds))
 

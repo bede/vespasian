@@ -1,0 +1,2 @@
+NEB Site in 7x650 Alignment	P(w>1) > 0.5	Posterior Mean (w)
+119	0.960	113.197

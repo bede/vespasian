@@ -1,6 +1,8 @@
 import os
 import warnings
 
+from pprint import pprint
+
 import argh
 
 from vespasian import vespasian, util, __version__
@@ -42,6 +44,13 @@ def codeml_setup(input: 'path to directory containing aligned gene families',
     vespasian.codeml_setup(input, gene_trees, branches, output, separator, strict, threads, progress)
 
 
+def report(input: 'path to codeml_setup() output directory'):
+    '''Perform likelihood ratio tests and and report positively selected sites'''
+    pprint(vespasian.report(input))
+
+
+###################################################################################################
+
 
 def reformat_environments(input: 'path to directory containing codeml environments'):
     '''Reformat vespasian codeml environments for use with legacy codeml_reader'''
@@ -56,6 +65,7 @@ def version():
 def main():
     argh.dispatch_commands([infer_gene_trees,
                             codeml_setup,
+                            report,
                             reformat_environments,
                             version])
 

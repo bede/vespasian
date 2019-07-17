@@ -1,4 +1,5 @@
 import os
+import re
 import shutil
 import textwrap
 import warnings
@@ -9,6 +10,7 @@ import parmap
 import treeswift
 
 from itertools import permutations
+from collections import defaultdict
 from pathlib import Path
 
 from Bio import AlignIO, SeqIO
@@ -152,6 +154,9 @@ def label_branch(tree_path, branch_label, leaf_labels, separator='|', strict=Fal
         print(f'Skipped labelling {branch_label} in {tree_path}')
         raise RuntimeError()
     return tree
+
+
+####################################################################################################
 
 
 class ControlFile():
@@ -359,3 +364,131 @@ def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir, separato
 
     generate_codeml_commands(output_dir)
     generate_snakefile(output_dir)
+
+
+####################################################################################################
+
+
+def gather_codeml_output(path):
+    '''Recursively finds codeml output paths within a target directory tree'''
+    for entry in os.scandir(path):
+        if entry.is_file(follow_symlinks=False):
+            if entry.name == 'out':
+                yield entry.path
+        else:
+            yield from gather_codeml_output(entry.path)
+
+
+
+
+
+def parse_result(path):
+    '''Parse codeml output
+
+    # To do
+    - Pick lowest lnL
+    - Positive sites
+    
+    '''
+    models_params = {
+        'm0': ('w'),
+        'm1Neutral': ('p0', 'p1', 'w0', 'w1'),
+        'm2Selection': ('p0', 'p1', 'p2' 'w0', 'w1', 'w2'),
+        'm3Discrtk2': ('p0', 'p1', 'w0', 'w1'),
+        'm3Discrtk3': ('p0', 'p1', 'p2' 'w0', 'w1', 'w2'),
+        'm7': ('p', 'q'),
+        'm8': ('p', 'p0', 'p1', 'q', 'w'),
+        'm8a': ('p', 'p0', 'p1', 'q', 'w'),
+        'modelA': ('p0', 'p1', 'p2', 'p3', 'w0', 'w1', 'w2'),
+        'modelAnull': ('p0', 'p1', 'p2', 'p3', 'w0', 'w1', 'w2')
+    }
+    
+    record = path.split('/')[-5:-1]
+    
+    result = dict(family=record[0],
+                  tree=record[1],
+                  model=record[2],
+                  w_t0=int(''.join(i for i in record[3] if i.isdigit())),
+                  path=path)
+   
+    model = result['model']
+    
+    params = {}
+    
+    floats_re = re.compile(r"[-+]?\d*\.\d+|[-+]?\d+")
+    
+    try:
+        with open(path) as result_fh:
+            for line in result_fh:
+                if line.startswith('lnL'):
+                    lnl_record = re.split(r'\s+', line.strip())  # Split by contiguous whitespace
+                    params['lnl'] = float(lnl_record[-2])
+                    assert params['lnl'] <= 0  # lnL should be negative
+                elif model == 'm7':
+                    if line.startswith(' p ='):
+                        m7_pq_record = floats_re.findall(line)
+                        params['p'], params['q'] = m7_pq_record
+                elif model == 'm8' or model == 'm8a':
+                    if line.startswith('  p0 ='):
+                        m8_p0pq_record = floats_re.findall(line)
+                        params['p0'], params['p'], params['q'] = m8_p0pq_record[1:]
+                    elif line.startswith(' (p1 ='):
+                        m8_p1w_record = floats_re.findall(line)
+                        params['p1'], params['w'] = m8_p1w_record[1:]
+                elif model == 'modelA' or model == 'modelAnull':
+                    if line.startswith('proportion'):
+                        p_record = floats_re.findall(line)
+                        p_labels = tuple(range(len(p_record)))
+                        p_params = tuple(map(float, p_record))
+                        p_labels_params = {f'p{p_label}': p_param for p_label, p_param in zip(p_labels, p_params)}
+                        params = {**params, **p_labels_params}
+                    elif line.startswith('foreground w'):
+                        w_record = floats_re.findall(line)
+                        w_labels = tuple(range(len(w_record)))
+                        w_params = tuple(map(float, w_record[:3]))
+                        w_labels_params = {f'w{w_label}': w_param for w_label, w_param in zip(w_labels, w_params)}
+                        params = {**params, **w_labels_params}
+                else:
+                    if line.startswith('omega'):
+                        omega_record = floats_re.findall(line)
+                        params['w'] = float(omega_record[0])
+                    elif line.startswith('p:'):
+                        p_record = floats_re.findall(line)
+                        p_labels = tuple(range(len(p_record)))
+                        p_params = {f'p{p_label}': p_param for p_label, p_param in zip(p_labels, tuple(map(float, p_record)))}
+                        params = {**params, **p_params}
+                    elif line.startswith('w:'):
+                        w_record = floats_re.findall(line)
+                        w_labels = tuple(range(len(w_record)))
+                        w_params = {f'w{w_label}': w_param for w_label, w_param in zip(w_labels, tuple(map(float, w_record)))}
+                        params = {**params, **w_params}
+
+    except Exception as e:
+        print(f'Problem parsing codeml output {path}')
+        raise(e)
+
+    result['params'] = params
+    return result
+
+
+def parse_results(input_dir):
+    output_paths = list(gather_codeml_output(input_dir))
+    results_meta = [parse_result(path) for path in output_paths]
+
+    results = results_meta
+    return results
+
+
+def test_likelihood_ratios():
+    pass
+
+
+def summarise_selected_sites():
+    pass
+
+
+def report(input_dir):
+    '''Perform likelihood ratio tests and and report positively selected sites'''
+    # pass
+    return parse_results(input_dir)
+

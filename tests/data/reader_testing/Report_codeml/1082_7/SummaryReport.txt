@@ -1,0 +1,11 @@
+Model	Tree	Model Type	p	w (t=0)	lnL	LRT Result	Parameter Estimates	Positive Selection	Positively Selected Sites in 7x650 Alignment (P(w>1) > 0.5)
+m0	1082_7	Homogeneous	1	1	-6500.565340	N/A	w=0.02109	No	
+m1Neutral	1082_7	Site-specific	1	10	-6454.686958	N/A	p0=0.96543 p1=0.03457 w0=0.00977 w1=1.00000	Not Allowed	
+m2Selection	1082_7	Site-specific	2	1	-6454.686958	m1Neutral	p0=0.96543 p1=0.01380 p2=0.02078 w0=0.00977 w1=1.00000 w2=1.00000	No	
+m3Discrtk2	1082_7	Site-specific	3	10	-6425.531657	m3Discrtk2	p0=0.90430 p1=0.09570 w0=0.00169 w1=0.23794	No	
+m3Discrtk3	1082_7	Site-specific	5	10	-6423.644635	m3Discrtk3	p0=0.88762 p1=0.11089 p2=0.00149 w0=0.00058 w1=0.19862 w2=117.85825	Yes	Alignment (1 NEB sites): 119
+m7	1082_7	Site-specific	2	1	-6425.541770	N/A	p=0.03963 q=1.14037	Not Allowed	
+m8	1082_7	Site-specific	4	0	-6423.690066	m7	p=0.03906 p0=0.99852 p1=0.00148 q=1.19888 w=101.79012	No	
+m8a	1082_7	Site-specific	4	1	-6425.060087	N/A	p=0.03882 p0=0.99742 p1=0.00258 q=1.20530 w=1.00000	Not Allowed	
+modelA	1082_7_dendrobatoidessubclade	Branch-site	3	1	-6446.176984	modelA	p0=0.96413 p1=0.03310 p2=0.00269 p3=0.00009 w0=0.00950 w1=1.00000 w2=78.35258	Yes	Alignment (1 BEB sites): 157
+modelAnull	1082_7_dendrobatoidessubclade	Branch-site	3	1	-6449.387563	N/A	p0=0.94237 p1=0.03103 p2=0.02575 p3=0.00085 w0=0.00939 w1=1.00000 w2=1.00000	Not Allowed	

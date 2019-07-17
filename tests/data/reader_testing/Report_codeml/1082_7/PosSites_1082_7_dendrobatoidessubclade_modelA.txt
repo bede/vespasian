@@ -1,0 +1,2 @@
+BEB Site in 7x650 Alignment	P(w>1) > 0.5
+157	0.993

@@ -54,6 +54,11 @@ def test_codeml_setup_unlabelled():
     print(run_cmd.stdout, run_cmd.stderr)
 
 
+def test_codeml_reader():
+    vespasian.report(f'{data_dir}/reader_testing/codeml/1082_7')
+    run_cmd = run('vespasian report reader_testing/codeml/1082_7', cwd=data_dir)
+
+
 # Slow tests, run with --slow
 
 

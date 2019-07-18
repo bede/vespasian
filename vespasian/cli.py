@@ -47,7 +47,7 @@ def codeml_setup(input: 'path to directory containing aligned gene families',
 def report(input: 'path to codeml_setup() output directory'):
     '''Perform likelihood ratio tests and and report positively selected sites'''
     pprint(vespasian.report(input))
-
+    vespasian.report(input)
 
 ###################################################################################################
 

@@ -379,29 +379,26 @@ def gather_codeml_output(path):
             yield from gather_codeml_output(entry.path)
 
 
-
-
-
 def parse_result(path):
     '''Parse codeml output
 
     # To do
     - Pick lowest lnL
     - Positive sites
-    
+
     '''
-    models_params = {
-        'm0': ('w'),
-        'm1Neutral': ('p0', 'p1', 'w0', 'w1'),
-        'm2Selection': ('p0', 'p1', 'p2' 'w0', 'w1', 'w2'),
-        'm3Discrtk2': ('p0', 'p1', 'w0', 'w1'),
-        'm3Discrtk3': ('p0', 'p1', 'p2' 'w0', 'w1', 'w2'),
-        'm7': ('p', 'q'),
-        'm8': ('p', 'p0', 'p1', 'q', 'w'),
-        'm8a': ('p', 'p0', 'p1', 'q', 'w'),
-        'modelA': ('p0', 'p1', 'p2', 'p3', 'w0', 'w1', 'w2'),
-        'modelAnull': ('p0', 'p1', 'p2', 'p3', 'w0', 'w1', 'w2')
-    }
+    # models_params = {
+    #     'm0': ('w'),
+    #     'm1Neutral': ('p0', 'p1', 'w0', 'w1'),
+    #     'm2Selection': ('p0', 'p1', 'p2' 'w0', 'w1', 'w2'),
+    #     'm3Discrtk2': ('p0', 'p1', 'w0', 'w1'),
+    #     'm3Discrtk3': ('p0', 'p1', 'p2' 'w0', 'w1', 'w2'),
+    #     'm7': ('p', 'q'),
+    #     'm8': ('p', 'p0', 'p1', 'q', 'w'),
+    #     'm8a': ('p', 'p0', 'p1', 'q', 'w'),
+    #     'modelA': ('p0', 'p1', 'p2', 'p3', 'w0', 'w1', 'w2'),
+    #     'modelAnull': ('p0', 'p1', 'p2', 'p3', 'w0', 'w1', 'w2')
+    # }
     
     record = path.split('/')[-5:-1]
     
@@ -419,49 +416,71 @@ def parse_result(path):
     
     try:
         with open(path) as result_fh:
-            for line in result_fh:
-                if line.startswith('lnL'):
-                    lnl_record = re.split(r'\s+', line.strip())  # Split by contiguous whitespace
-                    params['lnl'] = float(lnl_record[-2])
-                    assert params['lnl'] <= 0  # lnL should be negative
-                elif model == 'm7':
-                    if line.startswith(' p ='):
-                        m7_pq_record = floats_re.findall(line)
-                        params['p'], params['q'] = m7_pq_record
-                elif model == 'm8' or model == 'm8a':
-                    if line.startswith('  p0 ='):
-                        m8_p0pq_record = floats_re.findall(line)
-                        params['p0'], params['p'], params['q'] = m8_p0pq_record[1:]
-                    elif line.startswith(' (p1 ='):
-                        m8_p1w_record = floats_re.findall(line)
-                        params['p1'], params['w'] = m8_p1w_record[1:]
-                elif model == 'modelA' or model == 'modelAnull':
-                    if line.startswith('proportion'):
-                        p_record = floats_re.findall(line)
-                        p_labels = tuple(range(len(p_record)))
-                        p_params = tuple(map(float, p_record))
-                        p_labels_params = {f'p{p_label}': p_param for p_label, p_param in zip(p_labels, p_params)}
-                        params = {**params, **p_labels_params}
-                    elif line.startswith('foreground w'):
-                        w_record = floats_re.findall(line)
-                        w_labels = tuple(range(len(w_record)))
-                        w_params = tuple(map(float, w_record[:3]))
-                        w_labels_params = {f'w{w_label}': w_param for w_label, w_param in zip(w_labels, w_params)}
-                        params = {**params, **w_labels_params}
-                else:
-                    if line.startswith('omega'):
-                        omega_record = floats_re.findall(line)
-                        params['w'] = float(omega_record[0])
-                    elif line.startswith('p:'):
-                        p_record = floats_re.findall(line)
-                        p_labels = tuple(range(len(p_record)))
-                        p_params = {f'p{p_label}': p_param for p_label, p_param in zip(p_labels, tuple(map(float, p_record)))}
-                        params = {**params, **p_params}
-                    elif line.startswith('w:'):
-                        w_record = floats_re.findall(line)
-                        w_labels = tuple(range(len(w_record)))
-                        w_params = {f'w{w_label}': w_param for w_label, w_param in zip(w_labels, tuple(map(float, w_record)))}
-                        params = {**params, **w_params}
+            result_contents = result_fh.read()
+        result_lines = result_contents.splitlines()
+        for line in result_lines:
+            if line.startswith('lnL'):
+                lnl_record = re.split(r'\s+', line.strip())  # Split by contiguous whitespace
+                params['lnl'] = float(lnl_record[-2])
+                assert params['lnl'] <= 0  # lnL should be negative
+            elif model == 'm7':
+                if line.startswith(' p ='):
+                    m7_pq_record = floats_re.findall(line)
+                    params['p'], params['q'] = m7_pq_record
+            elif model == 'm8' or model == 'm8a':
+                if line.startswith('  p0 ='):
+                    m8_p0pq_record = floats_re.findall(line)
+                    params['p0'], params['p'], params['q'] = m8_p0pq_record[1:]
+                elif line.startswith(' (p1 ='):
+                    m8_p1w_record = floats_re.findall(line)
+                    params['p1'], params['w'] = m8_p1w_record[1:]
+            elif model == 'modelA' or model == 'modelAnull':
+                if line.startswith('proportion'):
+                    p_record = floats_re.findall(line)
+                    p_labels = tuple(range(len(p_record)))
+                    p_params = tuple(map(float, p_record))
+                    p_labels_params = {f'p{p_label}': p_param for p_label, p_param in zip(p_labels, p_params)}
+                    params = {**params, **p_labels_params}
+                elif line.startswith('foreground w'):
+                    w_record = floats_re.findall(line)
+                    w_labels = tuple(range(len(w_record)))
+                    w_params = tuple(map(float, w_record[:3]))
+                    w_labels_params = {f'w{w_label}': w_param for w_label, w_param in zip(w_labels, w_params)}
+                    params = {**params, **w_labels_params}
+            else:
+                if line.startswith('omega'):
+                    omega_record = floats_re.findall(line)
+                    params['w'] = float(omega_record[0])
+                elif line.startswith('p:'):
+                    p_record = floats_re.findall(line)
+                    p_labels = tuple(range(len(p_record)))
+                    p_params = {f'p{p_label}': p_param for p_label, p_param in zip(p_labels, tuple(map(float, p_record)))}
+                    params = {**params, **p_params}
+                elif line.startswith('w:'):
+                    w_record = floats_re.findall(line)
+                    w_labels = tuple(range(len(w_record)))
+                    w_params = {f'w{w_label}': w_param for w_label, w_param in zip(w_labels, tuple(map(float, w_record)))}
+                    params = {**params, **w_params}
+
+
+        # Get NEB and BEB positive site lines for m8
+        pos_site_lines = re.findall('post mean \+\- SE for w(.*?)\n\n\n', result_contents, re.DOTALL)
+        if pos_site_lines:
+            if model == 'm3Discrtk3':
+                print('cat')
+            neb_lines = pos_site_lines[0].strip().replace('*','').split('\n')
+            neb_records = [{'position': int(r[0]),
+                           'residue': r[1],
+                           'p': float(r[2])}
+                           for r in [s.split() for s in neb_lines]]
+            result['neb_sites'] = neb_records
+        if len(pos_site_lines) >= 2:
+            beb_lines = pos_site_lines[1].strip().replace('*','').split('\n')
+            beb_records = [{'position': int(r[0]),
+                           'residue': r[1],
+                           'p': float(r[2])}
+                          for r in [s.split() for s in beb_lines]]
+            result['beb_sites'] = beb_records
 
     except Exception as e:
         print(f'Problem parsing codeml output {path}')
@@ -489,6 +508,5 @@ def summarise_selected_sites():
 
 def report(input_dir):
     '''Perform likelihood ratio tests and and report positively selected sites'''
-    # pass
     return parse_results(input_dir)
 

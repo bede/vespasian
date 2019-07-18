@@ -448,10 +448,10 @@ def parse_result(path):
                     params = {**params, **w_params}
 
 
-        # Get NEB and BEB positive sites for site models
+        # Get NEB and BEB positive sites for the site models where they are reported
         site_models_selection = ('m0','m2Selection', 'm3Discrtk2', 'm3Discrtk3', 'm8')
         if model == any(site_models_selection):
-            pos_site_lines = re.findall('mean \+\- SE for w(.*?)\n\n\n', result_contents, re.DOTALL)
+            pos_site_lines = re.findall(r'mean \+\- SE for w(.*?)\n\n\n', result_contents, re.DOTALL)
             if pos_site_lines:
                 neb_lines = pos_site_lines[0].strip().replace('*','').split('\n')
                 neb_records = [{'position': int(r[0]),
@@ -467,7 +467,7 @@ def parse_result(path):
                               for r in [s.split() for s in beb_lines]]
                 result['beb_sites'] = beb_records
 
-        # Get NEB and BEB positive sites for branch-site models
+        # Get NEB and BEB positive sites for branch-site modelA
         if model == 'modelA':
             pos_site_lines = re.findall(r'Prob\(w\>1\)\:\n(.*?)\n\n', result_contents, re.DOTALL)
             if pos_site_lines:
@@ -493,12 +493,24 @@ def parse_result(path):
     return result
 
 
+def filter_results(results):
+    '''Returns the family-tree-model results with the highest log likelihood'''
+    names_lnls = defaultdict(lambda: float('-inf'))
+    names_records = {}
+    for r in results:
+        # We only want the best of each family-tree-model permutation
+        name = f"{r['family']}_{r['tree']}_{r['model']}"
+        if r['params']['lnl'] > names_lnls[name]:
+            names_lnls[name] = r['params']['lnl']
+            names_records[name] = r
+    return names_records
+
+
 def parse_results(input_dir):
     output_paths = list(gather_codeml_output(input_dir))
-    results_meta = [parse_result(path) for path in output_paths]
-
-    results = results_meta
-    return results
+    results = [parse_result(path) for path in output_paths]
+    filtered_results = filter_results(results)
+    return filtered_results
 
 
 def test_likelihood_ratios():

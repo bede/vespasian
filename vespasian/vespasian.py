@@ -380,26 +380,7 @@ def gather_codeml_output(path):
 
 
 def parse_result(path):
-    '''Parse codeml output
-
-    # To do
-    - Pick lowest lnL
-    - Positive sites
-
-    '''
-    # models_params = {
-    #     'm0': ('w'),
-    #     'm1Neutral': ('p0', 'p1', 'w0', 'w1'),
-    #     'm2Selection': ('p0', 'p1', 'p2' 'w0', 'w1', 'w2'),
-    #     'm3Discrtk2': ('p0', 'p1', 'w0', 'w1'),
-    #     'm3Discrtk3': ('p0', 'p1', 'p2' 'w0', 'w1', 'w2'),
-    #     'm7': ('p', 'q'),
-    #     'm8': ('p', 'p0', 'p1', 'q', 'w'),
-    #     'm8a': ('p', 'p0', 'p1', 'q', 'w'),
-    #     'modelA': ('p0', 'p1', 'p2', 'p3', 'w0', 'w1', 'w2'),
-    #     'modelAnull': ('p0', 'p1', 'p2', 'p3', 'w0', 'w1', 'w2')
-    # }
-    
+    '''Parse codeml output'''
     record = path.split('/')[-5:-1]
     
     result = dict(family=record[0],
@@ -439,13 +420,15 @@ def parse_result(path):
                     p_record = floats_re.findall(line)
                     p_labels = tuple(range(len(p_record)))
                     p_params = tuple(map(float, p_record))
-                    p_labels_params = {f'p{p_label}': p_param for p_label, p_param in zip(p_labels, p_params)}
+                    p_labels_params = {f'p{p_label}': p_param for p_label, p_param
+                                       in zip(p_labels, p_params)}
                     params = {**params, **p_labels_params}
                 elif line.startswith('foreground w'):
                     w_record = floats_re.findall(line)
                     w_labels = tuple(range(len(w_record)))
                     w_params = tuple(map(float, w_record[:3]))
-                    w_labels_params = {f'w{w_label}': w_param for w_label, w_param in zip(w_labels, w_params)}
+                    w_labels_params = {f'w{w_label}': w_param for w_label, w_param
+                                       in zip(w_labels, w_params)}
                     params = {**params, **w_labels_params}
             else:
                 if line.startswith('omega'):
@@ -454,33 +437,53 @@ def parse_result(path):
                 elif line.startswith('p:'):
                     p_record = floats_re.findall(line)
                     p_labels = tuple(range(len(p_record)))
-                    p_params = {f'p{p_label}': p_param for p_label, p_param in zip(p_labels, tuple(map(float, p_record)))}
+                    p_params = {f'p{p_label}': p_param for p_label, p_param
+                                in zip(p_labels, tuple(map(float, p_record)))}
                     params = {**params, **p_params}
                 elif line.startswith('w:'):
                     w_record = floats_re.findall(line)
                     w_labels = tuple(range(len(w_record)))
-                    w_params = {f'w{w_label}': w_param for w_label, w_param in zip(w_labels, tuple(map(float, w_record)))}
+                    w_params = {f'w{w_label}': w_param for w_label, w_param
+                                in zip(w_labels, tuple(map(float, w_record)))}
                     params = {**params, **w_params}
 
 
-        # Get NEB and BEB positive site lines for m8
-        pos_site_lines = re.findall('post mean \+\- SE for w(.*?)\n\n\n', result_contents, re.DOTALL)
-        if pos_site_lines:
-            if model == 'm3Discrtk3':
-                print('cat')
-            neb_lines = pos_site_lines[0].strip().replace('*','').split('\n')
-            neb_records = [{'position': int(r[0]),
-                           'residue': r[1],
-                           'p': float(r[2])}
-                           for r in [s.split() for s in neb_lines]]
-            result['neb_sites'] = neb_records
-        if len(pos_site_lines) >= 2:
-            beb_lines = pos_site_lines[1].strip().replace('*','').split('\n')
-            beb_records = [{'position': int(r[0]),
-                           'residue': r[1],
-                           'p': float(r[2])}
-                          for r in [s.split() for s in beb_lines]]
-            result['beb_sites'] = beb_records
+        # Get NEB and BEB positive sites for site models
+        site_models_selection = ('m0','m2Selection', 'm3Discrtk2', 'm3Discrtk3', 'm8')
+        if model == any(site_models_selection):
+            pos_site_lines = re.findall('mean \+\- SE for w(.*?)\n\n\n', result_contents, re.DOTALL)
+            if pos_site_lines:
+                neb_lines = pos_site_lines[0].strip().replace('*','').split('\n')
+                neb_records = [{'position': int(r[0]),
+                                'residue': r[1],
+                                'p': float(r[2])}
+                               for r in [s.split() for s in neb_lines]]
+                result['neb_sites'] = neb_records
+            if len(pos_site_lines) >= 2:
+                beb_lines = pos_site_lines[1].strip().replace('*','').split('\n')
+                beb_records = [{'position': int(r[0]),
+                                'residue': r[1],
+                                'p': float(r[2])}
+                              for r in [s.split() for s in beb_lines]]
+                result['beb_sites'] = beb_records
+
+        # Get NEB and BEB positive sites for branch-site models
+        if model == 'modelA':
+            pos_site_lines = re.findall(r'Prob\(w\>1\)\:\n(.*?)\n\n', result_contents, re.DOTALL)
+            if pos_site_lines:
+                neb_lines = pos_site_lines[0].strip().replace('*','').split('\n')
+                neb_records = [{'position': int(r[0]),
+                                'residue': r[1],
+                                'p': float(r[2])}
+                               for r in [s.strip('\n').split() for s in neb_lines]]
+                result['neb_sites'] = neb_records
+            if len(pos_site_lines) >= 2:
+                beb_lines = pos_site_lines[1].strip().replace('*','').split('\n')
+                beb_records = [{'position': int(r[0]),
+                                'residue': r[1],
+                                'p': float(r[2])}
+                              for r in [s.split() for s in beb_lines]]
+                result['beb_sites'] = beb_records
 
     except Exception as e:
         print(f'Problem parsing codeml output {path}')

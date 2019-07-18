@@ -8,6 +8,8 @@ Vespasian is intended to be a faster and more user friendly alternative to [VESP
 
 ## Roadmap
 
+- choose site and/or branch-site models
+
 ### Commands
 
 #### `infer-gene-trees` ✅

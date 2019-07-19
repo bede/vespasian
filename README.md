@@ -1,50 +1,36 @@
 # Vespasian
 
-Genome scale detection of signatures of positive selection from orthologous gene families through automatic model testing. Given a collection of fasta alignments of orthologous gene families, infer gene trees from a species tree and evaluate site and lineage-specific models of evolution using PAML. Model testing is CPU intensive but embarrassingly parallel, and may be run locally or using a cluster via Snakemake.
+*Vespasian* performs genome scale detection of site and branch-site signatures of positive selection by orchestrating the execution and interpretation of evolutionary hypothesis tests. Given a collection of fasta alignments of orthologous gene families and labelled trees, Vespasian infers gene trees from a species tree and evaluates site and lineage-specific models of evolution using PAML. Model testing is CPU intensive but embarrassingly parallel, and may be run locally or using a cluster via Snakemake.
 
-Vespasian is intended to be a faster and more user friendly alternative to [VESPA](https://peerj.com/articles/cs-118/) by Webb et al. (2017). 
+Vespasian is a faster and more user friendly rewrite of [VESPA](https://peerj.com/articles/cs-118/) by Webb et al. (2017).
 
 
 
 ## Roadmap
 
-- choose site and/or branch-site models
+- Specify site and/or branch-site models
+
+
 
 ### Commands
 
 #### `infer-gene-trees` ✅
 
-- `infer-trees`
-
 #### `codeml-setup` ✅ 🧵 🐍
 
-- Rename `configure-models` and `test-models`
-
-#### `codeml-reader` 🔜 
-
-- Rename `report`
+#### `report` ✅ *alpha*
 
 
-### Remaining features
 
-- Snakemake orchestrated execution of model testing
+### To do
 
-  - Cluster execution
-
-- Reporting
-
-  - LRTs
-  - Selected site visualisation
-  - Summary table
-  - Function integration
-
-- IQ-TREE or ParGenes integration?
-
-
-### Todo
-
-- [ ] Implement codeml-reader
-- [ ] Improve logging
+- [ ] `report()`
+  - [ ] Selected site visualisation
+- [ ] IQ-TREE / ParGenes integration
+- [ ] Python API
+- [ ] Specify site and/or branch-site models
+- [ ] Renaming:
+  - [ ] `infer-gene-trees` -> `infer-trees`
 
 
 ## Installation
@@ -66,8 +52,7 @@ pip install vespasian
 
 ```bash
 # Manually install PAML/CodeML
-pip install vespa
-
+pip install vespasian
 ```
 
 ### From tarball
@@ -75,7 +60,6 @@ pip install vespa
 ```bash
 tar xzf vespasian-0.2.0.tar.gz
 pip install /path/to/vespasian-0.2.0/
-
 ```
 
 
@@ -194,4 +178,6 @@ optional arguments:
 
 ### Step 4: Analyse model output, find positively selected sites
 
-For now it is necessary to use the original [VESPA](https://github.com/aewebb80/vespa) for this purpose
+- ~~For now it is necessary to use the original [VESPA](https://github.com/aewebb80/vespa) for this purpose~~
+- NEW: use `vespasian report` to extract positively selected sites from your codeml directory
+- Documentation coming soon

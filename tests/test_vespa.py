@@ -19,8 +19,8 @@ def run(cmd, cwd=cwd):
                           stderr=subprocess.PIPE)
 
 
-def setup_pipeline():
-    run_cmd('rm -rf gene-trees codeml codeml-unlabelled', cwd=data_dir)  # Start afresh
+# def setup_pipeline():
+#     run_cmd('rm -rf gene-trees codeml codeml-unlabelled', cwd=data_dir)  # Start afresh
 
 
 def test_infer_genetree():  # default --output is gene-trees
@@ -54,9 +54,10 @@ def test_codeml_setup_unlabelled():
     print(run_cmd.stdout, run_cmd.stderr)
 
 
-def test_codeml_reader():
-    vespasian.report(f'{data_dir}/reader_testing/codeml/1082_7')
-    run_cmd = run('vespasian report reader_testing/codeml/1082_7', cwd=data_dir)
+def test_report():
+    # vespasian.report(f'{data_dir}/report_testing/codeml/1082_7', f'{data_dir}/report_testing/codeml/1082_7')
+    run('rm -rf report_testing/codeml_report')
+    run_cmd = run('vespasian report report_testing/codeml/1082_7 --output report_testing/codeml_report', cwd=data_dir)
 
 
 # Slow tests, run with --slow

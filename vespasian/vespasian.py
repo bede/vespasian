@@ -9,11 +9,15 @@ import tqdm
 import parmap
 import treeswift
 
+import numpy as np
+import pandas as pd
+
 from itertools import permutations
 from collections import defaultdict
 from pathlib import Path
 
 from Bio import AlignIO, SeqIO
+from scipy.stats import chi2
 
 from vespasian import util
 
@@ -402,8 +406,8 @@ def parse_result(path):
         for line in result_lines:
             if line.startswith('lnL'):
                 lnl_record = re.split(r'\s+', line.strip())  # Split by contiguous whitespace
-                params['lnl'] = float(lnl_record[-2])
-                assert params['lnl'] <= 0  # lnL should be negative
+                result['lnl'] = float(lnl_record[-2])
+                assert result['lnl'] <= 0  # lnL should be negative
             elif model == 'm7':
                 if line.startswith(' p ='):
                     m7_pq_record = floats_re.findall(line)
@@ -450,7 +454,7 @@ def parse_result(path):
 
         # Get NEB and BEB positive sites for the site models where they are reported
         site_models_selection = ('m0','m2Selection', 'm3Discrtk2', 'm3Discrtk3', 'm8')
-        if model == any(site_models_selection):
+        if model in site_models_selection:
             pos_site_lines = re.findall(r'mean \+\- SE for w(.*?)\n\n\n', result_contents, re.DOTALL)
             if pos_site_lines:
                 neb_lines = pos_site_lines[0].strip().replace('*','').split('\n')
@@ -466,6 +470,7 @@ def parse_result(path):
                                 'p': float(r[2])}
                               for r in [s.split() for s in beb_lines]]
                 result['beb_sites'] = beb_records
+
 
         # Get NEB and BEB positive sites for branch-site modelA
         if model == 'modelA':
@@ -499,10 +504,11 @@ def filter_results(results):
     names_records = {}
     for r in results:
         # We only want the best of each family-tree-model permutation
-        name = f"{r['family']}_{r['tree']}_{r['model']}"
-        if r['params']['lnl'] > names_lnls[name]:
-            names_lnls[name] = r['params']['lnl']
-            names_records[name] = r
+        # name = f"{r['family']}_{r['tree']}_{r['model']}"
+        key = (r['family'], r['tree'], r['model'])  # Tuple-keyed dict of family-tree-model
+        if r['lnl'] > names_lnls[key]:
+            names_lnls[key] = r['lnl']
+            names_records[key] = r
     return names_records
 
 
@@ -513,15 +519,98 @@ def parse_results(input_dir):
     return filtered_results
 
 
-def test_likelihood_ratios():
-    pass
+def summarise(family_results):
+    def fmt_sites(sites):
+        sites_fmt = []
+        if sites:
+            for s in sites:
+                sites_fmt.append(f"{s['position']}{s['residue']}:{s['p']}")
+        return ' '.join(sites_fmt)
+
+    df = pd.DataFrame.from_dict(family_results.values()).fillna(0)
+    df.sort_values('model', axis=0, inplace=True)
+    df['params'] = df['params'].apply(lambda p: ' '.join([f'{k}={v}' for k, v in p.items()]))
+    df['neb_sites'] = df['neb_sites'].apply(fmt_sites)
+    df['beb_sites'] = df['beb_sites'].apply(fmt_sites)
+    df['positive_selection'] = np.where(df['beb_sites'], 'yes', 'no')
+    df = df.reindex(['family', 'tree', 'model', 'w_t0', 'lnl', 'params', 'positive_selection',
+                     'neb_sites', 'beb_sites', 'path'], axis=1)
+    return df
 
 
-def summarise_selected_sites():
-    pass
+def test_likelihood_ratios(family_results):
+    '''Docstring'''
+    def lr_prob(likelihood_ratio, df):
+        return chi2.sf(likelihood_ratio, df)
+
+    def modelanull_vs_modela_prob(likelihood_ratio):
+        return lr_prob(likelihood_ratio)/2
+
+    site_lrts = {('m0', 'm3Discrtk2'): {'df': 2, 'cv': 5.991},
+                 ('m1Neutral', 'm2Selection'): {'df': 2, 'cv': 5.991},
+                 ('m3Discrtk2', 'm3Discrtk3'): {'df': 1, 'cv': 1.000},
+                 ('m7', 'm8'): {'df': 2, 'cv': 5.991},
+                 ('m8', 'm8a'): {'df': 2, 'cv': 2.706}}
+
+    branch_site_lrts = {('m1Neutral', 'modelA'): {'df': 2, 'cv': 5.991},
+                        ('modelAnull', 'modelA'): {'df': 2, 'cv': 3.841}}
+    
+    families_branches = {(r[:2]) for r in family_results.keys()}
+
+    lrts = []
+    for family, tree in families_branches:
+        if family == tree:  # Site models
+            for test, meta in site_lrts.items():
+                null_lnl = family_results[(family, tree, test[0])]['lnl']
+                alt_lnl = family_results[(family, tree, test[1])]['lnl']
+                lrt = abs(meta['df']*(null_lnl-alt_lnl))
+                lrt_record = dict(tree=tree,
+                      lrt=f'{test[0]} vs. {test[1]}',
+                      null_model_lnl=null_lnl,
+                      alt_model_lnl=alt_lnl,
+                      lrt_result=lrt,
+                      critical_value=meta['cv'],
+                      p=lr_prob(lrt, 1),
+                      null_rejected=True if lrt > meta['cv'] else False)
+                lrts.append(lrt_record)
+
+        else:  # Branch-site models
+            for test, meta in branch_site_lrts.items():
+                if test[0] == 'm1Neutral':  # m1Neutral is a site model
+                    null_lnl = family_results[(family, family, test[0])]['lnl']
+                else:
+                    null_lnl = family_results[(family, tree, test[0])]['lnl']
+                alt_lnl = family_results[(family, tree, test[1])]['lnl']
+                lrt = abs(meta['df']*(null_lnl-alt_lnl))
+                lrt_record = dict(tree=tree,
+                                  lrt=f'{test[0]} vs. {test[1]}',
+                                  null_model_lnl=null_lnl,
+                                  alt_model_lnl=alt_lnl,
+                                  lrt_result=lrt,
+                                  critical_value=meta['cv'],
+                                  p=lr_prob(lrt, 1),
+                                  null_rejected=True if lrt > meta['cv'] else False)
+                lrts.append(lrt_record)
+
+    df = pd.DataFrame(lrts)
+    df = df.reindex(('tree', 'lrt', 'null_model_lnl', 'alt_model_lnl', 'lrt_result', 'p', 'critical_value', 'null_rejected'), axis=1)
+    df = df.sort_values(['tree', 'lrt'])
+    return df
 
 
-def report(input_dir):
+def report(input_dir, output_dir):
     '''Perform likelihood ratio tests and and report positively selected sites'''
-    return parse_results(input_dir)
+    filtered_results = parse_results(input_dir)
+    
+    families_results = {f: {} for f in (k[0] for k in filtered_results.keys())}
+    for name, result in filtered_results.items():
+        families_results[name[0]][name] = result
+    
+    for family, family_results in families_results.items():
+        summary_df = summarise(family_results)
+        lrts_df = test_likelihood_ratios(family_results)
+        os.makedirs(f'{output_dir}/{family}', exist_ok=True)
+        summary_df.to_csv(f'{output_dir}/{family}/summary.tsv', sep='\t', index=False)
+        lrts_df.to_csv(f'{output_dir}/{family}/lrts.tsv', sep='\t', index=False)
 
+    return families_results

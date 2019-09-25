@@ -60,6 +60,9 @@ def test_report():
     run_cmd = run('vespasian report report_testing/codeml/1082_7 --output report_testing/codeml_report', cwd=data_dir)
 
 
+# def test_snakefile_dryrun():
+#     run(f'snakemake --dryrun', cwd=f'{data_dir}/codeml')
+
 # Slow tests, run with --slow
 
 
@@ -68,4 +71,3 @@ def test_codeml_single_family():
     sample_workspace = 'codeml/s_4787/s_4787/m3Discrtk3/Omega0'
     run(f'codeml', cwd=f'{data_dir}/{sample_workspace}')
     run(f'rm 2NG* rst* rub out', cwd=f'{data_dir}/{sample_workspace}')
-

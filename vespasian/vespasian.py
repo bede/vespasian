@@ -328,7 +328,7 @@ def generate_snakefile(output_dir):
             output:
                 '{od}/out'
             shell:
-                'cd {wildcards.od} && codeml')
+                'cd {wildcards.od} && codeml'
     '''
     with open(f'{output_dir}/Snakefile', 'w+') as snakefile_fh:
         snakefile_fh.write(textwrap.dedent(snakefile).strip())
@@ -593,7 +593,8 @@ def test_likelihood_ratios(family_results):
                 lrts.append(lrt_record)
 
     df = pd.DataFrame(lrts)
-    df = df.reindex(('tree', 'lrt', 'null_model_lnl', 'alt_model_lnl', 'lrt_result', 'p', 'critical_value', 'null_rejected'), axis=1)
+    df = df.reindex(('tree', 'lrt', 'null_model_lnl', 'alt_model_lnl', 'lrt_result', 'p',
+                     'critical_value', 'null_rejected'), axis=1)
     df = df.sort_values(['tree', 'lrt'])
     return df
 

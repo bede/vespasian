@@ -1,6 +1,7 @@
 import os
 import warnings
 
+from math import ceil
 from pprint import pprint
 
 import argh
@@ -34,7 +35,7 @@ def codeml_setup(input: 'path to directory containing aligned gene families',
                  output: 'path to output directory' = 'codeml',
                  separator: 'character separating taxon name and identifier(s)' = '|',
                  strict: 'label only branches with all taxa present in tree' = False,
-                 threads: '' = os.cpu_count(),
+                 threads: 'number of parallel workers' = ceil(os.cpu_count()/2),
                  warnings: 'show warnings' = False,
                  progress: 'show progress bar' = False):
     '''Create suite of branch and branch-site codeml environments'''

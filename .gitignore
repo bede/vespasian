@@ -11,6 +11,9 @@ tests/data/codeml-*
 tests/data/gene-trees/
 tests/data/gene-trees-*
 tests/data/ali/
+tests/data/peter/codeml/
+tests/data/peter/codeml/*
+tests/data/peter/gene-trees/
 bin/
 froglets/
 ptw.sh

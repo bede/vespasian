@@ -19,8 +19,8 @@ def run(cmd, cwd=cwd):
                           stderr=subprocess.PIPE)
 
 
-# def setup_pipeline():
-#     run_cmd('rm -rf gene-trees codeml codeml-unlabelled', cwd=data_dir)  # Start afresh
+def test_setup_pipeline():
+    run('rm -rf gene-trees codeml codeml-unlabelled', cwd=data_dir)  # Start afresh
 
 
 def test_infer_genetree():  # default --output is gene-trees
@@ -62,6 +62,15 @@ def test_report():
 
 # def test_snakefile_dryrun():
 #     run(f'snakemake --dryrun', cwd=f'{data_dir}/codeml')
+
+def test_peter_fusions():
+    run_cmds = []
+    run_cmds.append(run('rm -rf gene-trees codeml',
+                    cwd=f'{data_dir}/peter'))
+    run_cmds.append(run('vespasian infer-gene-trees aln F6935_Domain1_nuc_regions.nwk',
+                        cwd=f'{data_dir}/peter'))
+    run_cmds.append(run('vespasian codeml-setup -b branches.yaml aln gene-trees',
+                        cwd=f'{data_dir}/peter'))
 
 # Slow tests, run with --slow
 

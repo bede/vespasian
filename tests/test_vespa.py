@@ -65,11 +65,13 @@ def test_report():
 
 def test_peter_fusions():
     run_cmds = []
-    run_cmds.append(run('rm -rf gene-trees codeml',
+    run_cmds.append(run('rm -rf gene-trees codeml report-codeml',
                     cwd=f'{data_dir}/peter'))
     run_cmds.append(run('vespasian infer-gene-trees aln F6935_Domain1_nuc_regions.nwk',
                         cwd=f'{data_dir}/peter'))
     run_cmds.append(run('vespasian codeml-setup -b branches.yaml aln gene-trees',
+                        cwd=f'{data_dir}/peter'))
+    run_cmds.append(run('vespasian report snakemaked',
                         cwd=f'{data_dir}/peter'))
 
 # Slow tests, run with --slow

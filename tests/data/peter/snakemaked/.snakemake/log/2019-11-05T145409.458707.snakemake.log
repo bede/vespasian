@@ -1,0 +1,28 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 1
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	34	run
+	35
+
+[Tue Nov  5 14:54:09 2019]
+rule run:
+    output: F6935_Domain1_nuc_regions/F6935_Domain1_nuc_regions_composite/modelA/Omega1/out
+    jobid: 31
+    wildcards: od=F6935_Domain1_nuc_regions/F6935_Domain1_nuc_regions_composite/modelA/Omega1
+
+Terminating processes on user request, this might take some time.
+[Tue Nov  5 14:54:45 2019]
+Error in rule run:
+    jobid: 31
+    output: F6935_Domain1_nuc_regions/F6935_Domain1_nuc_regions_composite/modelA/Omega1/out
+    shell:
+        cd F6935_Domain1_nuc_regions/F6935_Domain1_nuc_regions_composite/modelA/Omega1 && codeml
+        (exited with non-zero exit code)
+
+Removing output files of failed job run since they might be corrupted:
+F6935_Domain1_nuc_regions/F6935_Domain1_nuc_regions_composite/modelA/Omega1/out
+Complete log: /Users/bede/Research/Tools/vespasian/tests/data/peter/codeml/.snakemake/log/2019-11-05T145409.458707.snakemake.log

@@ -295,7 +295,7 @@ def setup_branch_site_models(family_name, family_path, alignment_path, gene_tree
 def gather_codeml_dirs(path):
     '''Recursively finds codeml directory paths within a target directory tree'''
     for entry in os.scandir(path):
-        if entry.is_dir(follow_symlinks=False):
+        if entry.is_dir(follow_symlinks=True):
             if 'Omega' in entry.name:
                 yield entry.path
             else:
@@ -379,7 +379,7 @@ def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir, separato
 def gather_codeml_output(path):
     '''Recursively finds codeml output paths within a target directory tree'''
     for entry in os.scandir(path):
-        if entry.is_file(follow_symlinks=False):
+        if entry.is_file(follow_symlinks=True):
             if entry.name == 'out':
                 yield entry.path
         else:
@@ -461,6 +461,7 @@ def parse_result(path):
             pos_site_lines = re.findall(r'mean \+\- SE for w(.*?)\n\n\n', result_contents, re.DOTALL)
             if pos_site_lines:
                 neb_lines = pos_site_lines[0].strip().replace('*','').split('\n')
+                neb_lines = list(filter(None, neb_lines))  # Cull empty strings
                 neb_records = [{'position': int(r[0]),
                                 'residue': r[1],
                                 'p': float(r[2])}
@@ -468,6 +469,7 @@ def parse_result(path):
                 result['neb_sites'] = neb_records
             if len(pos_site_lines) >= 2:
                 beb_lines = pos_site_lines[1].strip().replace('*','').split('\n')
+                beb_lines = list(filter(None, beb_lines))  # Cull empty strings
                 beb_records = [{'position': int(r[0]),
                                 'residue': r[1],
                                 'p': float(r[2])}

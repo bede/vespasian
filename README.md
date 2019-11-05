@@ -6,31 +6,32 @@ Vespasian is a faster and more user friendly rewrite of [VESPA](https://peerj.co
 
 
 
-## Roadmap
+## Status
 
-- Specify site and/or branch-site models
+### `infer-gene-trees` ✅
 
+- Create per-family trees by pruning supplied input tree
 
+### `codeml-setup` ✅ 🧵 🐍
 
-### Commands
+- Configure model tests
 
-#### `infer-gene-trees` ✅
+### `report` ✅ *beta*
 
-#### `codeml-setup` ✅ 🧵 🐍
-
-#### `report` ✅ *alpha*
+- Produce tables of parameter estimates and likelihood ratio tests between models
 
 
 
 ### To do
 
-- [ ] `report()`
-  - [ ] Selected site visualisation
+- [ ] Positively selected site visualisation
 - [ ] IQ-TREE / ParGenes integration
 - [ ] Python API
 - [ ] Specify site and/or branch-site models
 - [ ] Renaming:
-  - [ ] `infer-gene-trees` -> `infer-trees`
+- [ ] `infer-gene-trees` -> `infer-trees`
+- [ ] Choice of range of omega values
+
 
 
 ## Installation
@@ -61,6 +62,7 @@ pip install vespasian
 tar xzf vespasian-0.2.0.tar.gz
 pip install /path/to/vespasian-0.2.0/
 ```
+
 
 
 ## Usage

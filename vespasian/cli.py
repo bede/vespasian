@@ -50,7 +50,7 @@ def report(input: 'path to codeml_setup() output directory',
     '''Perform likelihood ratio tests and and report positively selected sites'''
     vespasian.report(input, output)
     print(f'Report written to {output}')
-    print('''               ,*//(##((##((*((,.                                 
+    print('''                            ,*//(##((##((*((,.                                 
                         *##/(###(*/(#(//(/((###%%%%#/                          
                     /(#(#((*****/**////*,,*(**/*((%%%%%%/                      
                  ///(/***,/***/**,**,,*//////**/(((###%%&%%%(.                 

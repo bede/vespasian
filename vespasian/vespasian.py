@@ -62,8 +62,10 @@ def infer_gene_tree(alignment_path, tree_path, output_path, separator='|'):
     records = list(SeqIO.parse(alignment_path, 'fasta'))
     stems_names = {r.id.partition(separator)[0]: r.id for r in records}  # Map prefix to full name
     stems = set(stems_names.keys())
-    if len(records) != len(stems):
-        raise NameError(f'Duplicate taxa present in {alignment_path}')
+    if len(records) == 0:
+        raise RuntimeError(f'No records found in {alignment_path}')
+    elif len(records) != len(stems):
+        raise RuntimeError(f'Duplicate taxa present in {alignment_path}')
     elif len(records) < 7:
         warnings.warn(f'Fewer than 7 sequences found in {alignment_path}. Consider exclusion.')
     species_tree = treeswift.read_tree_newick(tree_path)
@@ -80,7 +82,9 @@ def infer_gene_trees(input_path, tree_path, output_path, separator='|', progress
     family_paths = [f'{input_path}/{fn}' for fn in os.listdir(input_path)
                     if fn.endswith(('.fa', '.fasta'))]
     families_paths = {Path(a).stem: a for a in family_paths}
-    
+    if len(family_paths) == 0:
+        raise RuntimeError(f'No fasta files found in {input_path}')
+
     observed_stems = set()
     for family, path in tqdm.tqdm(families_paths.items(), disable=not progress):
         os.makedirs(output_path, exist_ok=True)
@@ -394,7 +398,9 @@ def parse_result(path):
                   tree=record[1],
                   model=record[2],
                   w_t0=int(''.join(i for i in record[3] if i.isdigit())),
-                  path=path)
+                  path=path,
+                  neb_sites=[],
+                  beb_sites=[])
    
     model = result['model']
     
@@ -454,46 +460,49 @@ def parse_result(path):
                                 in zip(w_labels, tuple(map(float, w_record)))}
                     params = {**params, **w_params}
 
-
         # Get NEB and BEB positive sites for the site models where they are reported
-        site_models_selection = ('m0','m2Selection', 'm3Discrtk2', 'm3Discrtk3', 'm8')
-        if model in site_models_selection:
-            pos_site_lines = re.findall(r'mean \+\- SE for w(.*?)\n\n\n', result_contents, re.DOTALL)
-            if pos_site_lines:
-                neb_lines = pos_site_lines[0].strip().replace('*','').split('\n')
+        if model in ('m0','m2Selection', 'm3Discrtk2', 'm3Discrtk3', 'm8'):
+            neb_pos_site_lines = re.findall(r'Naive Empirical Bayes \(NEB\).*?mean \+\- SE for w(.*?)\n\n\n', result_contents, re.DOTALL)
+            beb_pos_site_lines = re.findall(r'Bayes Empirical Bayes \(BEB\).*?mean \+\- SE for w(.*?)\n\n\n', result_contents, re.DOTALL)
+            if neb_pos_site_lines:
+                neb_lines = neb_pos_site_lines[0].strip().replace('*','').split('\n')
                 neb_lines = list(filter(None, neb_lines))  # Cull empty strings
-                neb_records = [{'position': int(r[0]),
-                                'residue': r[1],
-                                'p': float(r[2])}
+                # print(path, 'site_neb', neb_lines)
+                neb_records = [{'position': int(r[0]), 'residue': r[1], 'p': float(r[2])}
                                for r in [s.split() for s in neb_lines]]
                 result['neb_sites'] = neb_records
-            if len(pos_site_lines) >= 2:
-                beb_lines = pos_site_lines[1].strip().replace('*','').split('\n')
+            if beb_pos_site_lines:
+                beb_lines = beb_pos_site_lines[0].strip().replace('*','').split('\n')
                 beb_lines = list(filter(None, beb_lines))  # Cull empty strings
-                beb_records = [{'position': int(r[0]),
-                                'residue': r[1],
-                                'p': float(r[2])}
-                              for r in [s.split() for s in beb_lines]]
+                # print(path, 'site_beb', beb_lines)
+                beb_records = [{'position': int(r[0]), 'residue': r[1], 'p': float(r[2])}
+                               for r in [s.split() for s in beb_lines]]
                 result['beb_sites'] = beb_records
-
+            # Hack to prevent overread with confusing empty NEB immediately followed by non-empty BEB
+            # A non-greedy shortest-of-either three newlines or seeing 'Bayes' to terminate the regex search would be better
+            if '(NEB) analysis\nBayes Empirical Bayes (BEB)' in result_contents:
+                result['neb_sites'] = []
 
         # Get NEB and BEB positive sites for branch-site modelA
         if model == 'modelA':
-            pos_site_lines = re.findall(r'Prob\(w\>1\)\:\n(.*?)\n\n', result_contents, re.DOTALL)
-            if pos_site_lines:
-                neb_lines = pos_site_lines[0].strip().replace('*','').split('\n')
-                neb_records = [{'position': int(r[0]),
-                                'residue': r[1],
-                                'p': float(r[2])}
+            # Match records after non-greedy ('?') expansion of Naive|Bayes Empirical Bayes * Prob(w>1):
+            neb_pos_site_lines = re.findall(r'Naive Empirical Bayes \(NEB\).*?Prob\(w\>1\)\:\n(.*?)\n\n', result_contents, re.DOTALL)
+            beb_pos_site_lines = re.findall(r'Bayes Empirical Bayes \(BEB\).*?Prob\(w\>1\)\:\n(.*?)\n\n', result_contents, re.DOTALL)
+            if neb_pos_site_lines:
+                neb_lines = neb_pos_site_lines[0].strip().replace('*','').split('\n')
+                neb_lines = list(filter(None, neb_lines))  # Cull empty strings
+                # print(path, 'branch_site_neb', neb_lines)
+                neb_records = [{'position': int(r[0]), 'residue': r[1], 'p': float(r[2])}
                                for r in [s.strip('\n').split() for s in neb_lines]]
                 result['neb_sites'] = neb_records
-            if len(pos_site_lines) >= 2:
-                beb_lines = pos_site_lines[1].strip().replace('*','').split('\n')
-                beb_records = [{'position': int(r[0]),
-                                'residue': r[1],
-                                'p': float(r[2])}
-                              for r in [s.split() for s in beb_lines]]
+            if beb_pos_site_lines:
+                beb_lines = beb_pos_site_lines[0].strip().replace('*','').split('\n')
+                beb_lines = list(filter(None, beb_lines))  # Cull empty strings
+                # print(path, 'branch_site_beb', beb_lines)
+                beb_records = [{'position': int(r[0]), 'residue': r[1], 'p': float(r[2])}
+                               for r in [s.split() for s in beb_lines]]
                 result['beb_sites'] = beb_records
+
 
     except Exception as e:
         print(f'Problem parsing codeml output {path}')
@@ -519,6 +528,8 @@ def filter_results(results):
 
 def parse_results(input_dir):
     output_paths = list(gather_codeml_output(input_dir))
+    if len(output_paths) == 0:
+        print('No codeml output files detected')
     results = [parse_result(path) for path in output_paths]
     filtered_results = filter_results(results)
     return filtered_results
@@ -606,8 +617,7 @@ def test_likelihood_ratios(family_results):
 
 def report(input_dir, output_dir):
     '''Perform likelihood ratio tests and and report positively selected sites'''
-    filtered_results = parse_results(input_dir)
-    
+    filtered_results = parse_results(input_dir)    
     families_results = {f: {} for f in (k[0] for k in filtered_results.keys())}
     for name, result in filtered_results.items():
         families_results[name[0]][name] = result

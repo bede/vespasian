@@ -1,7 +1,7 @@
 family	tree	model	w_t0	lnl	params	positive_selection	neb_sites	beb_sites	path
 1082_7	1082_7	m0	0	-6500.56534	w=0.02109	no			report_testing/codeml/1082_7/1082_7/m0/Omega0/out
 1082_7	1082_7	m1Neutral	0	-6454.686958	p0=0.96543 p1=0.03457 w0=0.00977 w1=1.0	no			report_testing/codeml/1082_7/1082_7/m1Neutral/Omega0/out
-1082_7	1082_7	m2Selection	1	-6454.686958	p0=0.96543 p1=0.0138 p2=0.02078 w0=0.00977 w1=1.0 w2=1.0	no	119I:0.693		report_testing/codeml/1082_7/1082_7/m2Selection/Omega1/out
+1082_7	1082_7	m2Selection	1	-6454.686958	p0=0.96543 p1=0.0138 p2=0.02078 w0=0.00977 w1=1.0 w2=1.0	yes		119I:0.693	report_testing/codeml/1082_7/1082_7/m2Selection/Omega1/out
 1082_7	1082_7	m3Discrtk2	0	-6425.531657	p0=0.9043 p1=0.0957 w0=0.00169 w1=0.23794	no			report_testing/codeml/1082_7/1082_7/m3Discrtk2/Omega0/out
 1082_7	1082_7	m3Discrtk3	10	-6423.644635	p0=0.88762 p1=0.11089 p2=0.00149 w0=0.00058 w1=0.19862 w2=117.85825	no	119I:0.96		report_testing/codeml/1082_7/1082_7/m3Discrtk3/Omega10/out
 1082_7	1082_7	m7	0	-6425.54177	p=0.03963 q=1.14036	no			report_testing/codeml/1082_7/1082_7/m7/Omega0/out

@@ -37,7 +37,7 @@ def test_infer_genetree_with_errant_taxa():
 
 
 def test_infer_genetree_with_duplicate_taxa():
-    with pytest.raises(NameError) as exec_info:
+    with pytest.raises(RuntimeError) as exec_info:
         vespasian.infer_gene_trees(f'{data_dir}/duplicate-taxa/aln',
                                f'{data_dir}/duplicate-taxa/saiga.nwk',
                                f'{data_dir}/gene-trees-duplicate-taxa')

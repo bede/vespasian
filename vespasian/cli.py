@@ -49,7 +49,6 @@ def report(input: 'path to codeml_setup() output directory',
            output: 'path to output directory' = 'report-codeml'):
     '''Perform likelihood ratio tests and and report positively selected sites'''
     vespasian.report(input, output)
-    print(f'Report written to {output}')
     print('''                            ,*//(##((##((*((,.                                 
                         *##/(###(*/(#(//(/((###%%%%#/                          
                     /(#(#((*****/**////*,,*(**/*((%%%%%%/                      
@@ -111,6 +110,8 @@ def report(input: 'path to codeml_setup() output directory',
                         .,*,.....,,,,,***/((//###/.                            
                             ,,,,,/,****///*.                                   
 ''')
+    print(f'Report written to {output}')
+
 
 
 ###################################################################################################

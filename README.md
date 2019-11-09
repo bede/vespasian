@@ -18,7 +18,7 @@ Vespasian is a faster and more user friendly rewrite of [VESPA](https://peerj.co
 
 ### `report` ✅ *beta*
 
-- Produce tables ofw parameter estimates and likelihood ratio tests between models
+- Produce tables of parameter estimates and likelihood ratio tests between models
 
 
 
@@ -31,35 +31,34 @@ Vespasian is a faster and more user friendly rewrite of [VESPA](https://peerj.co
 - [ ] Renaming:
 - [ ] `infer-gene-trees` -> `infer-trees`
 - [ ] Choice of range of omega values
+- [ ] Benjamini-Hochberg correction of multiple tests
 
 
 
 ## Installation
 
-### With `conda`
+### With `conda` & `pip`
 
 ```bash
-# Recommended way until I make a conda package
+# Recommended until there's a conda package
 conda create -n vespasian python=3 paml parallel
 conda activate vespasian
 pip install vespasian
 ```
 
-Using bundled environment:
+Alternatively, using bundled environment (apparently unreliable?):
 ```bash
 conda env create -f conda.yml
 ```
-### From PyPI
+### With `pip` (doesn't install PAML)
 
 ```bash
-# Manually install PAML
 pip install vespasian
 ```
 
-### From tarball
+Alternatively, from a tarball 
 
 ```bash
-# Manually install PAML
 tar xzf vespasian-0.2.0.tar.gz
 pip install /path/to/vespasian-0.2.0/
 ```

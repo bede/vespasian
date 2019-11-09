@@ -1,0 +1,30 @@
+vespasian report -o ./vespasian_report4 ./vespasian_codeml4
+Problem parsing codeml output ./vespasian_codeml4/AC_A_3/AC_A_3_Archelosauria/modelA/Omega2/out
+Traceback (most recent call last):
+  File "/usr/local/bin/vespasian", line 11, in <module>
+    sys.exit(main())
+  File "/usr/local/lib/python3.6/dist-packages/vespasian/cli.py", line 134, in main
+    version])
+  File "/usr/local/lib/python3.6/dist-packages/argh/dispatching.py", line 328, in dispatch_commands
+    dispatch(parser, *args, **kwargs)
+  File "/usr/local/lib/python3.6/dist-packages/argh/dispatching.py", line 174, in dispatch
+    for line in lines:
+  File "/usr/local/lib/python3.6/dist-packages/argh/dispatching.py", line 277, in _execute_command
+    for line in result:
+  File "/usr/local/lib/python3.6/dist-packages/argh/dispatching.py", line 260, in _call
+    result = function(*positional, **keywords)
+  File "/usr/local/lib/python3.6/dist-packages/vespasian/cli.py", line 51, in report
+    vespasian.report(input, output)
+  File "/usr/local/lib/python3.6/dist-packages/vespasian/vespasian.py", line 609, in report
+    filtered_results = parse_results(input_dir)
+  File "/usr/local/lib/python3.6/dist-packages/vespasian/vespasian.py", line 522, in parse_results
+    results = [parse_result(path) for path in output_paths]
+  File "/usr/local/lib/python3.6/dist-packages/vespasian/vespasian.py", line 522, in <listcomp>
+    results = [parse_result(path) for path in output_paths]
+  File "/usr/local/lib/python3.6/dist-packages/vespasian/vespasian.py", line 500, in parse_result
+    raise(e)
+  File "/usr/local/lib/python3.6/dist-packages/vespasian/vespasian.py", line 488, in parse_result
+    for r in [s.strip('\n').split() for s in neb_lines]]
+  File "/usr/local/lib/python3.6/dist-packages/vespasian/vespasian.py", line 488, in <listcomp>
+    for r in [s.strip('\n').split() for s in neb_lines]]
+IndexError: list index out of range

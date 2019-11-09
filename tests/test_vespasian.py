@@ -74,6 +74,15 @@ def test_peter_fusions():
     run_cmds.append(run('vespasian report snakemaked',
                         cwd=f'{data_dir}/peter'))
 
+def test_vlad_report():
+    run_cmds = []
+    run_cmds.append(run('rm -rf run_00/report-codeml run_01/report-codeml',
+                    cwd=f'{data_dir}/vlad'))
+    run_cmds.append(run('vespasian report codeml',
+                        cwd=f'{data_dir}/vlad/run_00'))
+    run_cmds.append(run('vespasian report codeml',
+                        cwd=f'{data_dir}/vlad/run_01'))
+
 # Slow tests, run with --slow
 
 

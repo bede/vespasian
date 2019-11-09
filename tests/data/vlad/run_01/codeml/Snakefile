@@ -1,0 +1,13 @@
+with open('codeml-commands.sh', 'r') as fh:
+    commands = [l.strip() for l in fh if l]
+    run_dirs = [c[3:].partition(' &&')[0] for c in commands]
+
+rule all:
+    input:
+        expand('{od}/out', od=run_dirs)
+
+rule run:
+    output:
+        '{od}/out'
+    shell:
+        'cd {wildcards.od} && codeml'

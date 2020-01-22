@@ -34,7 +34,7 @@ def codeml_setup(input: 'path to directory containing aligned gene families',
                  branches: 'path to yaml file containing branches to be labelled' = None,
                  output: 'path to output directory' = 'codeml',
                  separator: 'character separating taxon name and identifier(s)' = '|',
-                 strict: 'label only branches with all taxa present in tree' = False,
+                 strict: 'label only branches with all taxa present in tree (default is >= 2)' = False,
                  threads: 'number of parallel workers' = ceil(os.cpu_count()/2),
                  warnings: 'show warnings' = False,
                  progress: 'show progress bar' = False):

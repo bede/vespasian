@@ -27,7 +27,7 @@ def parse_branch_file(branch_file):
     '''Parse YAML file containing foreground lineage definitions for codeml analysis'''
     with open(branch_file, 'r') as stream:
         try:
-            branches = yaml.load(stream)
+            branches = yaml.safe_load(stream)
         except yaml.YAMLError:
             print('Problem parsing branch file')
             raise RuntimeError
@@ -117,7 +117,7 @@ def prune_redundant_branches(branches, tree_path, separator):
 
     for supertree, subtree in supertrees_subtrees.items():
         del branches_leaves[supertree]
-        warnings.warn(f'Skipped labelling redundant supertree {supertree} for {tree_path}')
+        # warnings.warn(f'Skipped labelling redundant supertree {supertree} for {tree_path}')
         print(f'Skipped labelling redundant supertree {supertree} for {tree_path}')
 
     return  {b: list(l) for b, l in branches_leaves.items()}  # values() from sets to lists
@@ -140,7 +140,7 @@ def label_branch(tree_path, branch_label, leaf_labels, separator='|', strict=Fal
         intersection_size = len(tree_leaf_intersection)
         required_taxa = len(leaf_labels) if strict else 2  # Ignore singletons by default
         
-        if intersection_size < required_taxa: 
+        if intersection_size < required_taxa:
             warnings.warn(f'Insufficient taxa present to label branch {branch_label} in {tree_path}')
             print(f'Insufficient taxa present to label branch {branch_label} in {tree_path}')
             raise RuntimeError()
@@ -391,7 +391,10 @@ def gather_codeml_output(path):
 
 
 def parse_result(path):
-    '''Parse codeml output'''
+    '''
+    Parse codeml output
+    Yes this is a horribly complex function – blame Ziheng
+    '''
     record = path.split('/')[-5:-1]
     
     result = dict(family=record[0],
@@ -505,7 +508,7 @@ def parse_result(path):
 
 
     except Exception as e:
-        print(f'Problem parsing codeml output {path}')
+        print(f'Problem parsing codeml output {path}')  # Defeat
         raise(e)
 
     result['params'] = params
@@ -555,7 +558,7 @@ def summarise(family_results):
 
 
 def test_likelihood_ratios(family_results):
-    '''Docstring'''
+    '''Run likelihood ratio tests on familywise colleciton of model results'''
     def lr_prob(likelihood_ratio, df):
         return chi2.sf(likelihood_ratio, df)
 

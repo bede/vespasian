@@ -29,7 +29,7 @@ Vespasian is a faster and more user friendly rewrite of [VESPA](https://peerj.co
 - [ ] Python API
 - [ ] Specify site and/or branch-site models
 - [ ] Renaming:
-- [ ] `infer-gene-trees` -> `infer-trees`
+  - [ ] `infer-gene-trees` -> `infer-trees`
 - [ ] Choice of range of omega values
 - [ ] Benjamini-Hochberg correction of multiple tests
 

@@ -1,0 +1,62 @@
+{% set name = "vespasian" %}
+{% set version = "0.2.3" %}
+
+package:
+  name: "{{ name|lower }}"
+  version: "{{ version }}"
+
+source:
+  url: "https://pypi.io/packages/source/{{ name[0] }}/{{ name }}/{{ name }}-{{ version }}.tar.gz"
+  sha256: de5a2e56a908b7ab38a3c4f474ff54683eed4b2b195d27e8e32820c0ff90e3e3
+
+build:
+  number: 0
+  entry_points:
+    - vespasian=vespasian.cli:main
+  script: "{{ PYTHON }} -m pip install . -vv"
+
+requirements:
+  host:
+    - argh
+    - biopython
+    - numpy
+    - pandas
+    - parmap
+    - pip
+    - pytest
+    - python
+    - pyyaml
+    - scipy
+    - snakemake
+    - tqdm
+    - treeswift
+  run:
+    - argh
+    - biopython
+    - numpy
+    - pandas
+    - parmap
+    - pytest
+    - python
+    - pyyaml
+    - scipy
+    - snakemake
+    - tqdm
+    - treeswift
+
+test:
+  imports:
+    - vespasian
+  commands:
+    - vespasian version
+
+about:
+  home: The package home page
+  license: GPL v3
+  license_family: GPL
+  license_file: LICENSE
+  summary: "Genome scale evolutionary hypothesis testing"
+
+extra:
+  recipe-maintainers:
+    - bede

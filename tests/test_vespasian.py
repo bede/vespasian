@@ -83,11 +83,20 @@ def test_vlad_report():
     run_cmds.append(run('vespasian report codeml',
                         cwd=f'{data_dir}/vlad/run_01'))
 
+
 # Slow tests, run with --slow
 
 
 @pytest.mark.slow
-def test_codeml_single_family():
-    sample_workspace = 'codeml/s_4787/s_4787/m3Discrtk3/Omega0'
-    run(f'codeml', cwd=f'{data_dir}/{sample_workspace}')
-    run(f'rm 2NG* rst* rub out', cwd=f'{data_dir}/{sample_workspace}')
+# def test_codeml_single_family():
+#     sample_workspace = 'codeml/s_4787/s_4787/m3Discrtk3/Omega0'
+#     run(f'codeml', cwd=f'{data_dir}/{sample_workspace}')
+#     run(f'rm 2NG* rst* rub out', cwd=f'{data_dir}/{sample_workspace}')
+
+@pytest.mark.slow
+def test_vlad_3():  # This family fails for modelA unless gene tree encapsulated in parens
+    sample_workspace = 'vlad/3'
+    run('vespasian infer-gene-trees -w PNSAF3/ the_tree_short.nwk', cwd=f'{data_dir}/{sample_workspace}')
+    run('vespasian codeml-setup -w -b nodes.yaml PNSAF3/ gene-trees/', cwd=f'{data_dir}/{sample_workspace}')
+    run(f'codeml', cwd=f'{data_dir}/{sample_workspace}/codeml/PNSA_1/PNSA_1_Gymnophiona/modelA/Omega0')
+    run(f'rm -rf gene-trees codeml', cwd=f'{data_dir}/{sample_workspace}')

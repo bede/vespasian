@@ -21,13 +21,13 @@ from scipy.stats import chi2
 
 from vespasian import util
 
-
+from pprint import pprint
 
 def parse_branch_file(branch_file):
     '''Parse YAML file containing foreground lineage definitions for codeml analysis'''
     with open(branch_file, 'r') as stream:
         try:
-            branches = yaml.safe_load(stream)
+            branches = yaml.load(stream, Loader=yaml.FullLoader)
         except yaml.YAMLError:
             print('Problem parsing branch file')
             raise RuntimeError
@@ -117,8 +117,7 @@ def prune_redundant_branches(branches, tree_path, separator):
 
     for supertree, subtree in supertrees_subtrees.items():
         del branches_leaves[supertree]
-        # warnings.warn(f'Skipped labelling redundant supertree {supertree} for {tree_path}')
-        print(f'Skipped labelling redundant supertree {supertree} for {tree_path}')
+        warnings.warn(f'Skipped labelling redundant supertree {supertree} for {tree_path}')
 
     return  {b: list(l) for b, l in branches_leaves.items()}  # values() from sets to lists
 
@@ -140,9 +139,8 @@ def label_branch(tree_path, branch_label, leaf_labels, separator='|', strict=Fal
         intersection_size = len(tree_leaf_intersection)
         required_taxa = len(leaf_labels) if strict else 2  # Ignore singletons by default
         
-        if intersection_size < required_taxa:
+        if intersection_size < required_taxa: 
             warnings.warn(f'Insufficient taxa present to label branch {branch_label} in {tree_path}')
-            print(f'Insufficient taxa present to label branch {branch_label} in {tree_path}')
             raise RuntimeError()
 
         expanded_leaf_labels = (taxa_longnames.get(l) for l in leaf_labels)  # Generate long names
@@ -152,14 +150,12 @@ def label_branch(tree_path, branch_label, leaf_labels, separator='|', strict=Fal
     else:  # Branch is leaf node
         if branch_label not in taxa:
             warnings.warn(f'Insufficient taxa present to label leaf node {branch_label} in {tree_path}')
-            print(f'Insufficient taxa present to label leaf node {branch_label} in {tree_path}')
             raise RuntimeError()
         labels_nodes = tree.label_to_node()
         labels_nodes[taxa_longnames[branch_label]].label += '#1'
 
     if '#1' not in tree.newick():  # Catch-all for unlabelled branches
         warnings.warn(f'Skipped labelling {branch_label} in {tree_path}')
-        print(f'Skipped labelling {branch_label} in {tree_path}')
         raise RuntimeError()
     return tree
 
@@ -508,7 +504,7 @@ def parse_result(path):
 
 
     except Exception as e:
-        print(f'Problem parsing codeml output {path}')  # Defeat
+        print(f'Problem parsing codeml output in {path}')  # Defeat
         raise(e)
 
     result['params'] = params
@@ -519,13 +515,18 @@ def filter_results(results):
     '''Returns the family-tree-model results with the highest log likelihood'''
     names_lnls = defaultdict(lambda: float('-inf'))
     names_records = {}
-    for r in results:
-        # We only want the best of each family-tree-model permutation
-        # name = f"{r['family']}_{r['tree']}_{r['model']}"
-        key = (r['family'], r['tree'], r['model'])  # Tuple-keyed dict of family-tree-model
-        if r['lnl'] > names_lnls[key]:
-            names_lnls[key] = r['lnl']
-            names_records[key] = r
+    try:
+        for r in results:
+            # We only want the best of each family-tree-model permutation
+            # name = f"{r['family']}_{r['tree']}_{r['model']}"
+            key = (r['family'], r['tree'], r['model'])  # Tuple-keyed dict of family-tree-model
+            print(key)
+            pprint(r)
+            if r['lnl'] > names_lnls[key]:
+                names_lnls[key] = r['lnl']
+                names_records[key] = r
+    except KeyError:
+        print(f'Problem parsing codeml output in {key}')
     return names_records
 
 

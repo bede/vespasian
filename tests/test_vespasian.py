@@ -84,6 +84,11 @@ def test_vlad_report():
                         cwd=f'{data_dir}/vlad/run_01'))
 
 
+def test_report_frog_modela_neb():
+    run_cmd = run('vespasian report frog-modela-neb/family --output frog-modela-neb/report-codeml', cwd=data_dir)
+    run('rm -rf frog-modela-neb/report-codeml', cwd=data_dir)
+
+
 # Slow tests, run with --slow
 
 
@@ -100,3 +105,5 @@ def test_vlad_3():  # This family fails for modelA unless gene tree encapsulated
     run('vespasian codeml-setup -w -b nodes.yaml PNSAF3/ gene-trees/', cwd=f'{data_dir}/{sample_workspace}')
     run(f'codeml', cwd=f'{data_dir}/{sample_workspace}/codeml/PNSA_1/PNSA_1_Gymnophiona/modelA/Omega0')
     run(f'rm -rf gene-trees codeml', cwd=f'{data_dir}/{sample_workspace}')
+
+

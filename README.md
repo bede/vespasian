@@ -2,7 +2,7 @@
 
 *Vespasian* performs genome scale detection of site and branch-site signatures of positive selection by orchestrating the execution and interpretation of evolutionary hypothesis tests. Given a collection of fasta alignments of orthologous gene families and labelled trees, Vespasian infers gene trees from a species tree and evaluates site and lineage-specific models of evolution using PAML. Model testing is CPU intensive but embarrassingly parallel, and may be run locally or using a cluster via Snakemake.
 
-Vespasian is a faster and more user friendly rewrite of [VESPA](https://peerj.com/articles/cs-118/) by Webb et al. (2017).
+Vespasian is a faster, pure Python rewrite of [VESPA](https://peerj.com/articles/cs-118/) by Webb et al. (2017).
 
 
 
@@ -41,7 +41,7 @@ Vespasian is a faster and more user friendly rewrite of [VESPA](https://peerj.co
 
 ```bash
 # Recommended until there's a conda package
-conda create -n vespasian python=3 paml parallel
+conda create -n vespasian python=3 paml datrie
 conda activate vespasian
 pip install vespasian
 ```

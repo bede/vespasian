@@ -470,6 +470,7 @@ def parse_result(path):
                 neb_records = [{'position': int(r[0]), 'residue': r[1], 'p': float(r[2])}
                                for r in [s.split() for s in neb_lines]]
                 result['neb_sites'] = neb_records
+                # print(neb_records)
             if beb_pos_site_lines:
                 beb_lines = beb_pos_site_lines[0].strip().replace('*','').split('\n')
                 beb_lines = list(filter(None, beb_lines))  # Cull empty strings
@@ -485,18 +486,21 @@ def parse_result(path):
         # Get NEB and BEB positive sites for branch-site modelA
         if model == 'modelA':
             # Match records after non-greedy ('?') expansion of Naive|Bayes Empirical Bayes * Prob(w>1):
-            neb_pos_site_lines = re.findall(r'Naive Empirical Bayes \(NEB\).*?Prob\(w\>1\)\:\n(.*?)\n\n', result_contents, re.DOTALL)
-            beb_pos_site_lines = re.findall(r'Bayes Empirical Bayes \(BEB\).*?Prob\(w\>1\)\:\n(.*?)\n\n', result_contents, re.DOTALL)
+            neb_pos_site_lines = re.findall(r'Naive Empirical Bayes \(NEB\).*?Prob\(w\>1\)\:\n(.*?)\n\n',
+                                            result_contents, re.DOTALL)
+            beb_pos_site_lines = re.findall(r'Bayes Empirical Bayes \(BEB\).*?Prob\(w\>1\)\:\n(.*?)\n\n',
+                                            result_contents, re.DOTALL)
             if neb_pos_site_lines:
-                neb_lines = neb_pos_site_lines[0].strip().replace('*','').split('\n')
-                neb_lines = list(filter(None, neb_lines))  # Cull empty strings
+                neb_lines = neb_pos_site_lines[0].strip().split('\n')  # Item per line
+                neb_lines = [l.strip('* ') for l in filter(None, neb_lines)]  # Filter empty str and strip
                 # print(path, 'branch_site_neb', neb_lines)
                 neb_records = [{'position': int(r[0]), 'residue': r[1], 'p': float(r[2])}
                                for r in [s.strip('\n').split() for s in neb_lines]]
                 result['neb_sites'] = neb_records
+
             if beb_pos_site_lines:
-                beb_lines = beb_pos_site_lines[0].strip().replace('*','').split('\n')
-                beb_lines = list(filter(None, beb_lines))  # Cull empty strings
+                beb_lines = beb_pos_site_lines[0].strip().split('\n')  # Item per line
+                beb_lines = [l.strip('* ') for l in filter(None, beb_lines)]  # Filter empty str and strip
                 # print(path, 'branch_site_beb', beb_lines)
                 beb_records = [{'position': int(r[0]), 'residue': r[1], 'p': float(r[2])}
                                for r in [s.split() for s in beb_lines]]
@@ -520,8 +524,8 @@ def filter_results(results):
             # We only want the best of each family-tree-model permutation
             # name = f"{r['family']}_{r['tree']}_{r['model']}"
             key = (r['family'], r['tree'], r['model'])  # Tuple-keyed dict of family-tree-model
-            print(key)
-            pprint(r)
+            # print(key)
+            # pprint(r)
             if r['lnl'] > names_lnls[key]:
                 names_lnls[key] = r['lnl']
                 names_records[key] = r
@@ -621,7 +625,7 @@ def test_likelihood_ratios(family_results):
 
 def report(input_dir, output_dir):
     '''Perform likelihood ratio tests and and report positively selected sites'''
-    filtered_results = parse_results(input_dir)    
+    filtered_results = parse_results(input_dir)
     families_results = {f: {} for f in (k[0] for k in filtered_results.keys())}
     for name, result in filtered_results.items():
         families_results[name[0]][name] = result

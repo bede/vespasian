@@ -1,5 +1,6 @@
 import os
 import re
+import sys
 import shutil
 import textwrap
 import warnings
@@ -86,7 +87,9 @@ def infer_gene_trees(input_path, tree_path, output_path, separator='|', progress
         raise RuntimeError(f'No fasta files found in {input_path}')
 
     observed_stems = set()
-    for family, path in tqdm.tqdm(families_paths.items(), disable=not progress):
+    for family, path in tqdm.tqdm(families_paths.items(),
+                                  desc='Inferring trees',
+                                  disable=not progress):
         os.makedirs(output_path, exist_ok=True)
         stems = infer_gene_tree(path, tree_path, f'{output_path}/{family}.nwk')
         observed_stems |= stems
@@ -534,11 +537,15 @@ def filter_results(results):
     return names_records
 
 
-def parse_results(input_dir):
-    output_paths = list(gather_codeml_output(input_dir))
+def parse_results(input_dir, progress=False):
+    output_paths = tqdm.tqdm(list(gather_codeml_output(input_dir)),
+                             desc='Gathering',
+                             disable=not progress)
     if len(output_paths) == 0:
-        print('No codeml output files detected')
-    results = [parse_result(path) for path in output_paths]
+        print('No codeml output files detected', file=sys.stderr)
+    results = [parse_result(path) for path in tqdm.tqdm(output_paths,
+                                                        desc='Parsing',
+                                                        disable=not progress)]
     filtered_results = filter_results(results)
     return filtered_results
 
@@ -623,9 +630,9 @@ def test_likelihood_ratios(family_results):
     return df
 
 
-def report(input_dir, output_dir):
+def report(input_dir, output_dir, progress=False):
     '''Perform likelihood ratio tests and and report positively selected sites'''
-    filtered_results = parse_results(input_dir)
+    filtered_results = parse_results(input_dir, progress=progress)
     families_results = {f: {} for f in (k[0] for k in filtered_results.keys())}
     for name, result in filtered_results.items():
         families_results[name[0]][name] = result

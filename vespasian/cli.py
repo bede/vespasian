@@ -1,4 +1,5 @@
 import os
+import sys
 import warnings
 
 from math import ceil
@@ -46,10 +47,13 @@ def codeml_setup(input: 'path to directory containing aligned gene families',
 
 
 def report(input: 'path to codeml_setup() output directory',
-           output: 'path to output directory' = 'report-codeml'):
+           output: 'path to output directory' = 'report-codeml',
+           hide: 'hide gratuitous emperor portrait' = False,
+           progress: 'show progress bar' = False):
     '''Perform likelihood ratio tests and and report positively selected sites'''
-    vespasian.report(input, output)
-    print('''                            ,*//(##((##((*((,.                                 
+    vespasian.report(input, output, progress)
+    if not hide:
+      print('''                            ,*//(##((##((*((,.                                 
                         *##/(###(*/(#(//(/((###%%%%#/                          
                     /(#(#((*****/**////*,,*(**/*((%%%%%%/                      
                  ///(/***,/***/**,**,,*//////**/(((###%%&%%%(.                 
@@ -109,7 +113,7 @@ def report(input: 'path to codeml_setup() output directory',
                      .,..,,,*,...,,..,**,**/***/((#%#,                         
                         .,*,.....,,,,,***/((//###/.                            
                             ,,,,,/,****///*.                                   
-''')
+''', file=sys.stderr)
     print(f'Report written to {output}')
 
 

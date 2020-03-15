@@ -30,7 +30,7 @@ def parse_branch_file(branch_file):
         try:
             branches = yaml.load(stream, Loader=yaml.FullLoader)
         except yaml.YAMLError:
-            print('Problem parsing branch file')
+            print('Problem parsing branch file', file=sys.stderr)
             raise RuntimeError
     return branches
 
@@ -511,7 +511,7 @@ def parse_result(path):
 
 
     except Exception as e:
-        print(f'Problem parsing codeml output in {path}')  # Defeat
+        print(f'Problem parsing codeml output in {path}', file=sys.stderr)  # Defeat
         raise(e)
 
     result['params'] = params
@@ -533,18 +533,15 @@ def filter_results(results):
                 names_lnls[key] = r['lnl']
                 names_records[key] = r
     except KeyError:
-        print(f'Problem parsing codeml output in {key}')
+        print(f'Problem parsing codeml output in {key}', file=sys.stderr)
     return names_records
 
 
 def parse_results(input_dir, progress=False):
-    output_paths = tqdm.tqdm(list(gather_codeml_output(input_dir)),
-                             desc='Gathering',
-                             disable=not progress)
+    output_paths = list(gather_codeml_output(input_dir))
     if len(output_paths) == 0:
         print('No codeml output files detected', file=sys.stderr)
     results = [parse_result(path) for path in tqdm.tqdm(output_paths,
-                                                        desc='Parsing',
                                                         disable=not progress)]
     filtered_results = filter_results(results)
     return filtered_results

@@ -42,11 +42,11 @@ def codeml_setup(input: 'path to directory containing aligned gene families',
     '''Create suite of branch and branch-site codeml environments'''
     configure_warnings(warnings)
     if not branches:
-        print('No branch file supplied. Branch-site tests will not be configured.')
+        print('No branch file supplied. Branch-site tests will not be configured.', file=sys.stderr)
     vespasian.codeml_setup(input, gene_trees, branches, output, separator, strict, threads, progress)
 
 
-def report(input: 'path to codeml_setup() output directory',
+def report(input: 'path to codeml-setup output directory',
            output: 'path to output directory' = 'report-codeml',
            hide: 'hide gratuitous emperor portrait' = False,
            progress: 'show progress bar' = False):
@@ -114,7 +114,7 @@ def report(input: 'path to codeml_setup() output directory',
                         .,*,.....,,,,,***/((//###/.                            
                             ,,,,,/,****///*.                                   
 ''', file=sys.stderr)
-    print(f'Report written to {output}')
+    print(f'Report written to {output}', file=sys.stderr)
 
 
 

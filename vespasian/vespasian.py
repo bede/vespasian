@@ -28,7 +28,7 @@ def parse_branch_file(branch_file):
     '''Parse YAML file containing foreground lineage definitions for codeml analysis'''
     with open(branch_file, 'r') as stream:
         try:
-            branches = yaml.load(stream, Loader=yaml.FullLoader)
+            branches = yaml.load(stream, Loader=yaml.SafeLoader)
         except yaml.YAMLError:
             print('Problem parsing branch file', file=sys.stderr)
             raise RuntimeError
@@ -149,17 +149,22 @@ def label_branch(tree_path, branch_label, leaf_labels, separator='|', strict=Fal
         expanded_leaf_labels = (taxa_longnames.get(l) for l in leaf_labels)  # Generate long names
         mrca = tree.mrca(set(filter(None, expanded_leaf_labels)))
         mrca.label = "'#1'"
+        
+        if mrca.is_root():  # Can't be labelling the entire tree…
+            raise RuntimeError()
 
-    else:  # Branch is leaf node
+    elif branch_label:  # Branch is leaf node
         if branch_label not in taxa:
             warnings.warn(f'Insufficient taxa present to label leaf node {branch_label} in {tree_path}')
             raise RuntimeError()
         labels_nodes = tree.label_to_node()
         labels_nodes[taxa_longnames[branch_label]].label += '#1'
 
-    if '#1' not in tree.newick():  # Catch-all for unlabelled branches
-        warnings.warn(f'Skipped labelling {branch_label} in {tree_path}')
-        raise RuntimeError()
+    else:
+        if '#1' not in tree.newick():  # Catch-all for unlabelled branches
+            warnings.warn(f'Skipped labelling {branch_label} in {tree_path}')
+            raise RuntimeError()
+    
     return tree
 
 
@@ -281,7 +286,7 @@ def setup_branch_site_models(family_name, family_path, alignment_path, gene_tree
             try:
                 labelled_tree = label_branch(f'{family_path}/tree.nwk',
                                              branch, leaves, separator, strict)
-            except RuntimeError:  # label_branch() throws RuntimeError to skip a families
+            except RuntimeError:  # label_branch() throws RuntimeError to skip a family
                 continue
             for model, codeml_params in models.items():
                 for omega in models_omega[model]:

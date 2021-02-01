@@ -99,11 +99,15 @@ def test_report_frog_modela_neb():
 #     run(f'rm 2NG* rst* rub out', cwd=f'{data_dir}/{sample_workspace}')
 
 @pytest.mark.slow
-def test_vlad_3():  # This family fails for modelA unless gene tree encapsulated in parens
+def test_vlad_3():
+    '''
+    Catch labelled root. Gymnophiona should not be labelled as it is the root and meaning no background
+    This test has been repurposed as the scenario in for which it was conceived *should* no longer be possible
+    '''
     sample_workspace = 'vlad/3'
     run('vespasian infer-gene-trees -w PNSAF3/ the_tree_short.nwk', cwd=f'{data_dir}/{sample_workspace}')
     run('vespasian codeml-setup -w -b nodes.yaml PNSAF3/ gene-trees/', cwd=f'{data_dir}/{sample_workspace}')
-    run(f'codeml', cwd=f'{data_dir}/{sample_workspace}/codeml/PNSA_1/PNSA_1_Gymnophiona/modelA/Omega0')
+    assert not os.path.exists(f'{data_dir}/{sample_workspace}/codeml/PNSA_1/PNSA_1_Gymnophiona/')
     run(f'rm -rf gene-trees codeml', cwd=f'{data_dir}/{sample_workspace}')
 
 

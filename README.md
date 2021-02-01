@@ -1,4 +1,4 @@
-[![Python](https://img.shields.io/pypi/v/vespasian.svg)](https://snakemake.readthedocs.io)
+[![Python](https://img.shields.io/pypi/v/vespasian.svg)](https://pypi.org/project/vespasian/)
 
 
 # Vespasian
@@ -16,7 +16,7 @@ Vespasian is the pure Python successor to [VESPA](https://peerj.com/articles/cs-
 I currently recommend creating a conda environment with `paml` and `datrie`, and letting pip do the rest. PAML output changes in subtle and horrible ways between versions, and I have tested against builds [`h01d97ff_5`](https://anaconda.org/bioconda/paml/4.9/download/osx-64/paml-4.9-h01d97ff_5.tar.bz2) (Darwin) and [`h516909a_5`](https://anaconda.org/bioconda/paml/4.9/download/linux-64/paml-4.9-h516909a_5.tar.bz2) (Linux)
 
 ```bash
-conda create -n vespasian python=3 paml datrie
+conda create -n vespasian python=3 paml
 conda activate vespasian
 pip install vespasian
 ```
@@ -142,14 +142,14 @@ e.g. `cd codeml && snakemake --cores 8`
 - Using PAML version `4.9=h01d97ff_5` from Conda is recommended
 - `cd codeml` (the directory created by `codeml-setup` in step 2)
 - *Local execution (for small jobs)* 
-  - `snakemake --cores 8` (recommended)
+  - `snakemake -k --cores 8` (recommended)
   - Or, using GNU parallel (*not* recommended – doesn't catch errors!)
     - `parallel --bar :::: codeml-commands.sh`
 - *Cluster execution*
   
-  - `snakemake --cores MAXJOBS --cluster OPTIONS`
+  - `snakemake -k --cores MAXJOBS --cluster OPTIONS`
   - SGE example:
-      - `snakemake --jobs 100 --cluster "qsub -cwd -V"`
+      - `snakemake -k --jobs 100 --cluster "qsub -cwd -V" --max-status-checks-per-second 0.1`
       - Oxford Rescomp: `qsub -cwd -V -P bag.prjc -q short.qc`
       - Profiles [are available for other cluster platforms](https://snakemake.readthedocs.io/en/stable/executable.html#profiles)
 

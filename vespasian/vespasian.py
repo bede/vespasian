@@ -596,7 +596,7 @@ def test_likelihood_ratios(family_results):
             for test, meta in site_lrts.items():
                 null_lnl = family_results[(family, tree, test[0])]['lnl']
                 alt_lnl = family_results[(family, tree, test[1])]['lnl']
-                lrt = abs(meta['df']*(null_lnl-alt_lnl))
+                lrt = abs(2*abs(null_lnl-alt_lnl))
                 lrt_record = dict(tree=tree,
                       lrt=f'{test[0]} vs. {test[1]}',
                       null_model_lnl=null_lnl,

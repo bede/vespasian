@@ -1,9 +1,0 @@
-family	tree	model	w_t0	lnl	params	positive_selection	neb_sites	beb_sites	path
-AC_A_2	AC_A_2	m0	0	-3151.096124	w=0.06855	no			codeml/AC_A_2/AC_A_2/m0/Omega0/out
-AC_A_2	AC_A_2	m1Neutral	1	-3125.49491	p0=0.79122 p1=0.20878 w0=0.07185 w1=1.0	no			codeml/AC_A_2/AC_A_2/m1Neutral/Omega1/out
-AC_A_2	AC_A_2	m2Selection	0	-3125.49491	p0=0.79122 p1=0.02083 p2=0.18795 w0=0.07185 w1=1.0 w2=1.0	no			codeml/AC_A_2/AC_A_2/m2Selection/Omega0/out
-AC_A_2	AC_A_2	m3Discrtk2	0	-3068.388967	p0=0.30657 p1=0.69343 w0=0.00745 w1=0.10773	no			codeml/AC_A_2/AC_A_2/m3Discrtk2/Omega0/out
-AC_A_2	AC_A_2	m3Discrtk3	1	-3062.119588	p0=0.14792 p1=0.24452 p2=0.60755 w0=0.0 w1=0.02315 w2=0.11891	no			codeml/AC_A_2/AC_A_2/m3Discrtk3/Omega1/out
-AC_A_2	AC_A_2	m7	0	-3061.07874	p=0.60703 q=5.74680	no			codeml/AC_A_2/AC_A_2/m7/Omega0/out
-AC_A_2	AC_A_2	m8	0	-3061.079381	p0=0.99999 p=0.60703 q=5.74677 p1=0.00001 w=1.00000	no			codeml/AC_A_2/AC_A_2/m8/Omega0/out
-AC_A_2	AC_A_2	m8a	1	-3061.079381	p0=0.99999 p=0.60703 q=5.74672 p1=0.00001 w=1.00000	no			codeml/AC_A_2/AC_A_2/m8a/Omega1/out

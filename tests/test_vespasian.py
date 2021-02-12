@@ -6,6 +6,14 @@ import pytest
 from vespasian import vespasian
 
 
+# Unit tests
+
+def test_lrt():
+    assert vespasian.lrt(-120, -100) == 40  # Null worse than alt, should reject
+
+
+# System tests
+
 cwd = os.getcwd()
 data_dir = 'tests/data'  # Test from project root
 

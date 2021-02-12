@@ -6,6 +6,14 @@ import pytest
 from vespasian import vespasian
 
 
+# Unit tests
+
+def test_lrt():
+    assert vespasian.lrt(-120, -100) == 40  # Null worse than alt, should reject
+
+
+# System tests
+
 cwd = os.getcwd()
 data_dir = 'tests/data'  # Test from project root
 
@@ -56,8 +64,8 @@ def test_codeml_setup_unlabelled():
 
 def test_report():
     # vespasian.report(f'{data_dir}/report_testing/codeml/1082_7', f'{data_dir}/report_testing/codeml/1082_7')
-    run('rm -rf report_testing/codeml_report')
     run_cmd = run('vespasian report report_testing/codeml/1082_7 --output report_testing/codeml_report', cwd=data_dir)
+    run('rm -rf report_testing/codeml_report', cwd=data_dir)
 
 
 # def test_snakefile_dryrun():
@@ -65,23 +73,23 @@ def test_report():
 
 def test_peter_fusions():
     run_cmds = []
-    run_cmds.append(run('rm -rf gene-trees codeml report-codeml',
-                    cwd=f'{data_dir}/peter'))
     run_cmds.append(run('vespasian infer-gene-trees aln F6935_Domain1_nuc_regions.nwk',
                         cwd=f'{data_dir}/peter'))
     run_cmds.append(run('vespasian codeml-setup -b branches.yaml aln gene-trees',
                         cwd=f'{data_dir}/peter'))
     run_cmds.append(run('vespasian report snakemaked',
                         cwd=f'{data_dir}/peter'))
+    run_cmds.append(run('rm -rf gene-trees codeml report-codeml',
+                    cwd=f'{data_dir}/peter'))
 
 def test_vlad_report():
     run_cmds = []
-    run_cmds.append(run('rm -rf run_00/report-codeml run_01/report-codeml',
-                    cwd=f'{data_dir}/vlad'))
     run_cmds.append(run('vespasian report codeml',
                         cwd=f'{data_dir}/vlad/run_00'))
     run_cmds.append(run('vespasian report codeml',
                         cwd=f'{data_dir}/vlad/run_01'))
+    run_cmds.append(run('rm -rf run_00/report-codeml run_01/report-codeml',
+                    cwd=f'{data_dir}/vlad'))
 
 
 def test_report_frog_modela_neb():
@@ -109,5 +117,3 @@ def test_vlad_3():
     run('vespasian codeml-setup -w -b nodes.yaml PNSAF3/ gene-trees/', cwd=f'{data_dir}/{sample_workspace}')
     assert not os.path.exists(f'{data_dir}/{sample_workspace}/codeml/PNSA_1/PNSA_1_Gymnophiona/')
     run(f'rm -rf gene-trees codeml', cwd=f'{data_dir}/{sample_workspace}')
-
-

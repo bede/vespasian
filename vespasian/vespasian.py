@@ -5,6 +5,10 @@ import shutil
 import textwrap
 import warnings
 
+from itertools import permutations
+from collections import defaultdict
+from pathlib import Path
+
 import yaml
 import tqdm
 import parmap
@@ -13,16 +17,11 @@ import treeswift
 import numpy as np
 import pandas as pd
 
-from itertools import permutations
-from collections import defaultdict
-from pathlib import Path
-
 from Bio import AlignIO, SeqIO
 from scipy.stats import chi2
 
 from vespasian import util
 
-from pprint import pprint
 
 def parse_branch_file(branch_file):
     '''Parse YAML file containing foreground lineage definitions for codeml analysis'''
@@ -215,9 +214,9 @@ class ControlFile():
 def setup_site_models(family_name, family_path, alignment_path, gene_tree_path):
     '''Configure codeml site model environments'''
     models = {
-        'm0': {'model': 0, 'NSsites': 0, 'fix_omega': 0, 'ncatG': 1},
-        'm1Neutral': {'model': 0, 'NSsites': 1, 'fix_omega': 0, 'ncatG': 2},
-        'm2Selection': {'model': 0, 'NSsites': 2, 'fix_omega': 0, 'ncatG': 3},
+        'm0': {'model': 0, 'NSsites': 0, 'fix_omega': 0, 'ncatG': 10},
+        'm1Neutral': {'model': 0, 'NSsites': 1, 'fix_omega': 0, 'ncatG': 10},
+        'm2Selection': {'model': 0, 'NSsites': 2, 'fix_omega': 0, 'ncatG': 10},
         'm3Discrtk2': {'model': 0, 'NSsites': 3, 'fix_omega': 0, 'ncatG': 2},
         'm3Discrtk3': {'model': 0, 'NSsites': 3, 'fix_omega': 0, 'ncatG': 3},
         'm7': {'model': 0, 'NSsites': 7, 'fix_omega': 0, 'ncatG': 10},
@@ -254,12 +253,11 @@ def setup_site_models(family_name, family_path, alignment_path, gene_tree_path):
             ControlFile(model, **codeml_params).write(f'{run_dir}/codeml.ctl')
 
 
-def setup_branch_site_models(family_name, family_path, alignment_path, gene_tree_path, branches,
-                             separator, strict):
+def setup_branch_site_models(family_name, family_path, alignment_path, gene_tree_path, branches, separator, strict):
     '''Configure codeml branch-site model environments'''
     models = {
-        'modelA': {'model': 2, 'NSsites': 2, 'fix_omega': 0, 'ncatG': 4},
-        'modelAnull': {'model': 2, 'NSsites': 2, 'fix_omega': 1, 'ncatG': 4, 'omega': 1},
+        'modelA': {'model': 2, 'NSsites': 2, 'fix_omega': 0, 'ncatG': 10},
+        'modelAnull': {'model': 2, 'NSsites': 2, 'fix_omega': 1, 'ncatG': 10},
     }
 
     models_omega = {
@@ -355,8 +353,7 @@ def setup_family(family, alignment_path, output_dir, gene_trees_dir, branches, s
                              separator, strict)
 
 
-def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir, separator, strict,
-                 threads=os.cpu_count(), progress=False):
+def codeml_setup(families_dir, gene_trees_dir, branch_file, output_dir, separator, strict, threads=os.cpu_count(), progress=False):
     '''Configure site and branch-site test environment given alignments, gene trees and branches'''
     alignment_paths = [f'{families_dir}/{fn}' for fn in os.listdir(families_dir)
                     if fn.endswith(('.fa', '.fasta'))]
@@ -552,7 +549,7 @@ def parse_results(input_dir, progress=False):
     return filtered_results
 
 
-def summarise(family_results):
+def generate_summary_table(family_results):
     def fmt_sites(sites):
         sites_fmt = []
         if sites:
@@ -571,64 +568,67 @@ def summarise(family_results):
     return df
 
 
-def test_likelihood_ratios(family_results):
-    '''Run likelihood ratio tests on familywise colleciton of model results'''
-    def lr_prob(likelihood_ratio, df):
-        return chi2.sf(likelihood_ratio, df)
+def lrt(null_lnl, alt_lnl):
+    '''Return likelihood ratio test statistic using absolute log likelihoods'''
+    return 2*(abs(null_lnl)-abs(alt_lnl))
 
-    def modelanull_vs_modela_prob(likelihood_ratio):
-        return lr_prob(likelihood_ratio)/2
 
-    site_lrts = {('m0', 'm3Discrtk2'): {'df': 2, 'cv': 5.991},
-                 ('m1Neutral', 'm2Selection'): {'df': 2, 'cv': 5.991},
-                 ('m3Discrtk2', 'm3Discrtk3'): {'df': 1, 'cv': 1.000},
-                 ('m7', 'm8'): {'df': 2, 'cv': 5.991},
-                 ('m8', 'm8a'): {'df': 2, 'cv': 2.706}}
+def generate_lrt_table(family_results):
+    '''Returns dataframe of likelihood ratio tests for a family's model results'''
+ 
+    site_lrts = {('m0', 'm3Discrtk2'): {'ddof': 2, 'cv': 5.991},
+                 ('m1Neutral', 'm2Selection'): {'ddof': 2, 'cv': 5.991},
+                 ('m3Discrtk2', 'm3Discrtk3'): {'ddof': 0, 'cv': 1.000},
+                 ('m7', 'm8'): {'ddof': 2, 'cv': 5.991},
+                 ('m8a', 'm8'): {'ddof': 2, 'cv': 2.706}}
 
-    branch_site_lrts = {('m1Neutral', 'modelA'): {'df': 2, 'cv': 5.991},
-                        ('modelAnull', 'modelA'): {'df': 2, 'cv': 3.841}}
+    branch_site_lrts = {('m1Neutral', 'modelA'): {'ddof': 2, 'cv': 5.991},
+                        ('modelAnull', 'modelA'): {'ddof': 2, 'cv': 3.841}}
     
     families_branches = {(r[:2]) for r in family_results.keys()}
 
-    lrts = []
+    lrt_records = []
     for family, tree in families_branches:
         if family == tree:  # Site models
-            for test, meta in site_lrts.items():
-                null_lnl = family_results[(family, tree, test[0])]['lnl']
-                alt_lnl = family_results[(family, tree, test[1])]['lnl']
-                lrt = abs(meta['df']*(null_lnl-alt_lnl))
-                lrt_record = dict(tree=tree,
-                      lrt=f'{test[0]} vs. {test[1]}',
-                      null_model_lnl=null_lnl,
-                      alt_model_lnl=alt_lnl,
-                      lrt_result=lrt,
-                      critical_value=meta['cv'],
-                      p=lr_prob(lrt, 1),
-                      null_rejected=True if lrt > meta['cv'] else False)
-                lrts.append(lrt_record)
+            for (null, alt), meta in site_lrts.items():
+                null_lnl = family_results[(family, tree, null)]['lnl']
+                alt_lnl = family_results[(family, tree, alt)]['lnl']
+                lrt_ts = lrt(null_lnl, alt_lnl)
+                lrt_record= dict(
+                    tree=tree,
+                    null_model=null,
+                    alt_model=alt,
+                    null_lnl=null_lnl,
+                    alt_lnl=alt_lnl,
+                    lrt=lrt_ts/2 if null == 'm3Discrtk2' else lrt_ts,
+                    critical_value=meta['cv'],
+                    p='' if null == 'm3Discrtk2' else chi2.sf(lrt_ts, meta['ddof']),
+                    null_rejected=True if lrt_ts > meta['cv'] else False)
+                lrt_records.append(lrt_record)
 
         else:  # Branch-site models
-            for test, meta in branch_site_lrts.items():
-                if test[0] == 'm1Neutral':  # m1Neutral is a site model
-                    null_lnl = family_results[(family, family, test[0])]['lnl']
+            for (null, alt), meta in branch_site_lrts.items():
+                if null == 'm1Neutral':  # m1Neutral is a site model
+                    null_lnl = family_results[(family, family, null)]['lnl']
                 else:
-                    null_lnl = family_results[(family, tree, test[0])]['lnl']
-                alt_lnl = family_results[(family, tree, test[1])]['lnl']
-                lrt = abs(meta['df']*(null_lnl-alt_lnl))
-                lrt_record = dict(tree=tree,
-                                  lrt=f'{test[0]} vs. {test[1]}',
-                                  null_model_lnl=null_lnl,
-                                  alt_model_lnl=alt_lnl,
-                                  lrt_result=lrt,
-                                  critical_value=meta['cv'],
-                                  p=lr_prob(lrt, 1),
-                                  null_rejected=True if lrt > meta['cv'] else False)
-                lrts.append(lrt_record)
+                    null_lnl = family_results[(family, tree, null)]['lnl']
+                alt_lnl = family_results[(family, tree, alt)]['lnl']
+                lrt_ts = lrt(null_lnl, alt_lnl)
+                lrt_record= dict(
+                    tree=tree,
+                    null_model=null,
+                    alt_model=alt,
+                    null_lnl=null_lnl,
+                    alt_lnl=alt_lnl,
+                    lrt=lrt_ts,
+                    critical_value=meta['cv'],
+                    p=chi2.sf(lrt_ts, meta['ddof']),
+                    null_rejected=True if lrt_ts > meta['cv'] else False)
+                lrt_records.append(lrt_record)
 
-    df = pd.DataFrame(lrts)
-    df = df.reindex(('tree', 'lrt', 'null_model_lnl', 'alt_model_lnl', 'lrt_result', 'p',
-                     'critical_value', 'null_rejected'), axis=1)
-    df = df.sort_values(['tree', 'lrt'])
+    df = pd.DataFrame(lrt_records)
+    df = df.reindex(['tree', 'null_model', 'alt_model', 'null_lnl', 'alt_lnl', 'lrt', 'p', 'critical_value', 'null_rejected'], axis=1)
+    df = df.sort_values(['tree', 'null_model'])
     return df
 
 
@@ -640,8 +640,8 @@ def report(input_dir, output_dir, progress=False):
         families_results[name[0]][name] = result
     
     for family, family_results in families_results.items():
-        summary_df = summarise(family_results)
-        lrts_df = test_likelihood_ratios(family_results)
+        summary_df = generate_summary_table(family_results)
+        lrts_df = generate_lrt_table(family_results)
         os.makedirs(f'{output_dir}/{family}', exist_ok=True)
         summary_df.to_csv(f'{output_dir}/{family}/summary.tsv', sep='\t', index=False)
         lrts_df.to_csv(f'{output_dir}/{family}/lrts.tsv', sep='\t', index=False)

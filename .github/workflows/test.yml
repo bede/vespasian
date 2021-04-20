@@ -1,4 +1,4 @@
-name: Tests
+name: tests
 on: [push]
 
 jobs:
@@ -19,7 +19,7 @@ jobs:
           conda-channels: bioconda
       - name: Install
         run: |
-          conda install paml
+          conda install paml datrie
           pip install --upgrade pip setuptools wheel
           pip install pytest
           pip install .

@@ -1,4 +1,5 @@
-[![Python](https://img.shields.io/pypi/v/vespasian.svg?color=brightgreen)](https://pypi.org/project/vespasian/)
+[![Tests](https://img.shields.io/github/workflow/status/bede/vespasian/tests)](https://github.com/bede/vespasian/actions)
+[![PyPI](https://img.shields.io/pypi/v/vespasian.svg?color=brightgreen)](https://pypi.org/project/vespasian/)
 
 
 # Vespasian
@@ -11,7 +12,7 @@ Vespasian performs genome scale detection of site and branch-site signatures of 
 
 ### With `conda` & `pip`
 
-I currently recommend creating a conda environment with `paml` and `datrie`, and letting pip do the rest. PAML output changes in subtle and horrible ways between versions, and I have tested against builds [`h01d97ff_5`](https://anaconda.org/bioconda/paml/4.9/download/osx-64/paml-4.9-h01d97ff_5.tar.bz2) (Darwin) and [`h516909a_5`](https://anaconda.org/bioconda/paml/4.9/download/linux-64/paml-4.9-h516909a_5.tar.bz2) (Linux)
+I currently recommend creating a conda environment with `paml` and `datrie`, and letting pip do the rest. PAML output changes subtly between versions, and I have tested against MacOS builds `h01d97ff_5`, `hb4d813b_6` and Linux builds  `h516909a_5`, `h779adbc_6` from [bioconda](https://anaconda.org/bioconda/paml/files).
 
 ```bash
 conda create -n vespasian python=3 paml

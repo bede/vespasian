@@ -1,11 +1,9 @@
-[![Python](https://img.shields.io/pypi/v/vespasian.svg)](https://pypi.org/project/vespasian/)
+[![Python](https://img.shields.io/pypi/v/vespasian.svg?color=brightgreen)](https://pypi.org/project/vespasian/)
 
 
 # Vespasian
 
-Vespasian performs genome scale detection of site and branch-site signatures of positive selection by orchestrating the execution and interpretation of evolutionary hypothesis tests. Given a collection of alignments of protein-coding orthologous gene families and labelled trees, Vespasian infers gene trees from a species tree and evaluates site and lineage-specific models of evolution using PAML. Model testing is CPU intensive but embarrassingly parallel, and is  orchestrated on either a single machine or a remote compute cluster using [snakemake](https://github.com/snakemake/snakemake).
-
-Vespasian is the pure Python successor to [VESPA](https://peerj.com/articles/cs-118/) by Webb et al. (2017).
+Vespasian performs genome scale detection of site and branch-site signatures of positive selection by orchestrating the execution and parsing of evolutionary hypothesis tests with PAML. Given a collection of alignments of protein-coding orthologous gene families and labelled trees, Vespasian infers gene trees from a species tree and evaluates site and lineage-specific models of evolution using PAML. Model testing is CPU-intensive but embarrassingly parallel, and can be executed on one or many machines with [snakemake](https://github.com/snakemake/snakemake). Vespasian is the pure Python successor to [VESPA](https://peerj.com/articles/cs-118/) by Webb et al. (2017).
 
 
 
@@ -21,18 +19,19 @@ conda activate vespasian
 pip install vespasian
 ```
 
-
-### Without Conda (doesn't install PAML)
+### Without `conda`
 
 ```bash
+# Install PAML manually
 pip install vespasian
 ```
 
-Alternatively, from a [PyPI](https://pypi.org/project/vespasian/#history) or Github release tarball 
+### Development
 
 ```bash
-tar xzf vespasian-0.3.0.tar.gz
-pip install /path/to/vespasian-0.3.0/
+conda create -n vespasian python=3 paml && conda activate vespasian
+git clone https://github.com/bede/vespasian
+pip install --editable vespasian
 ```
 
 

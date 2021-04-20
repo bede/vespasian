@@ -154,7 +154,7 @@ def label_branch(tree_path, branch_label, leaf_labels, separator='|', strict=Fal
 
     elif branch_label:  # Branch is leaf node
         if branch_label not in taxa:
-            warnings.warn(f'Insufficient taxa present to label leaf node {branch_label} in {tree_path}')
+            warnings.warn(f'Insufficient taxa present to label leaf {branch_label} in {tree_path}')
             raise RuntimeError()
         labels_nodes = tree.label_to_node()
         labels_nodes[taxa_longnames[branch_label]].label += '#1'
@@ -562,7 +562,6 @@ def generate_summary_table(family_results):
     df['params'] = df['params'].apply(lambda p: ' '.join([f'{k}={v}' for k, v in p.items()]))
     df['neb_sites'] = df['neb_sites'].apply(fmt_sites)
     df['beb_sites'] = df['beb_sites'].apply(fmt_sites)
-    df['positive_selection'] = np.where(df['beb_sites'], 'yes', 'no')
     df = df.reindex(['family', 'tree', 'model', 'w_t0', 'lnl', 'params', 'positive_selection',
                      'neb_sites', 'beb_sites', 'path'], axis=1)
     return df

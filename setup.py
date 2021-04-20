@@ -3,44 +3,36 @@ import sys
 
 from setuptools import setup
 
-
-__version__ = re.search(r'__version__\s*=\s*[\'"]([^\'"]*)[\'"]',
-                        open('vespasian/__init__.py').read()).group(1)
+import vespasian
 
 
-if sys.version_info < (3,6):
-      sys.exit('Requires Python >= 3.6')
-
-
-CLASSIFIERS = ['Environment :: Console',
-               'Intended Audience :: Science/Research',
-               'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
-               'Natural Language :: English',
-               'Operating System :: POSIX :: Linux',
-               'Operating System :: MacOS :: MacOS X',
-               'Programming Language :: Python :: 3.6',
-               'Programming Language :: Python :: 3.7',
-               'Topic :: Scientific/Engineering :: Bio-Informatics']
-
+with open('README.md', 'r') as fh:
+    long_description = fh.read()
 
 setup(name = 'vespasian',
-      version = __version__,
+      version = vespasian.__version__,
       description = 'Genome scale evolutionary hypothesis testing',
-      url = '',
-      author = "Bede Constantinides, Mary O'Connell",
+      # long_description=long_description,
+      # long_description_content_type='text/markdown',
+      # url = 'http://github.com/bede/konstel',
+      author = 'Bede Constantinides',
       author_email = 'bedeabc@gmail.com',
       license = 'LICENSE',
       packages=['vespasian'],
       zip_safe=True,
-      install_requires=['biopython',
-                        'treeswift',
+      python_requires='>=3.6',
+      install_requires=['biopython>=1.78',
+                        'treeswift==1.1.14',
                         'tqdm',
                         'argh',
                         'pyyaml',
                         'parmap',
-                        'pytest',
                         'snakemake',
-                        'pandas',
-                        'numpy',
-                        'scipy'],
-      entry_points = {'console_scripts':['vespasian=vespasian.cli:main']})
+                        'pandas>=1.2.4',
+                        'numpy>=1.20.2',
+                        'scipy>=1.6.2'],
+      entry_points = {'console_scripts':['vespasian=vespasian.cli:main']},
+      classifiers=['Environment :: Console',
+                   'Intended Audience :: Science/Research',
+                   'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
+                   'Natural Language :: English'])

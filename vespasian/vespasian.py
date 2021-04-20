@@ -469,18 +469,18 @@ def parse_result(path):
             neb_pos_site_lines = re.findall(r'Naive Empirical Bayes \(NEB\).*?mean \+\- SE for w(.*?)\n\n\n', result_contents, re.DOTALL)
             beb_pos_site_lines = re.findall(r'Bayes Empirical Bayes \(BEB\).*?mean \+\- SE for w(.*?)\n\n\n', result_contents, re.DOTALL)
             if neb_pos_site_lines:
-                neb_lines = neb_pos_site_lines[0].strip().replace('*','').split('\n')
+                neb_lines = neb_pos_site_lines[0].strip().split('\n')
                 neb_lines = list(filter(None, neb_lines))  # Cull empty strings
                 # print(path, 'site_neb', neb_lines)
-                neb_records = [{'position': int(r[0]), 'residue': r[1], 'p': float(r[2])}
+                neb_records = [{'position': int(r[0]), 'residue': r[1], 'p': float(r[2].rstrip('*'))}
                                for r in [s.split() for s in neb_lines]]
                 result['neb_sites'] = neb_records
                 # print(neb_records)
             if beb_pos_site_lines:
-                beb_lines = beb_pos_site_lines[0].strip().replace('*','').split('\n')
+                beb_lines = beb_pos_site_lines[0].strip().split('\n')
                 beb_lines = list(filter(None, beb_lines))  # Cull empty strings
                 # print(path, 'site_beb', beb_lines)
-                beb_records = [{'position': int(r[0]), 'residue': r[1], 'p': float(r[2])}
+                beb_records = [{'position': int(r[0]), 'residue': r[1], 'p': float(r[2].rstrip('*'))}
                                for r in [s.split() for s in beb_lines]]
                 result['beb_sites'] = beb_records
             # Hack to prevent overread with confusing empty NEB immediately followed by non-empty BEB

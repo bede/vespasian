@@ -97,6 +97,14 @@ def test_report_frog_modela_neb():
     run('rm -rf frog-modela-neb/report-codeml', cwd=data_dir)
 
 
+def test_ambiguous_selected_codons():
+    run_cmd = run('vespasian report codeml', cwd=f'{data_dir}/david/ambiguous-codons')
+    with open(f'{data_dir}/david/ambiguous-codons/report-codeml/OG0013728_pruned.aln/summary.tsv', 'r') as fh:
+        summary = fh.read()
+    assert '263*:' in summary
+    run('rm -rf report-codeml', cwd=f'{data_dir}/david/ambiguous-codons')
+
+
 # Slow tests, run with --slow
 
 

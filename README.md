@@ -15,7 +15,7 @@ Vespasian performs genome scale detection of site and branch-site signatures of 
 I currently recommend creating a conda environment with `paml` and `datrie`, and letting pip do the rest. PAML output changes subtly between versions, and I have tested against MacOS builds `h01d97ff_5`, `hb4d813b_6` and Linux builds  `h516909a_5`, `h779adbc_6` from [bioconda](https://anaconda.org/bioconda/paml/files).
 
 ```bash
-conda create -n vespasian python=3 paml
+conda create -n vespasian python=3 paml datrie
 conda activate vespasian
 pip install vespasian
 ```

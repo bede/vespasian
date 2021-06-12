@@ -1,0 +1,489 @@
+Building DAG of jobs...
+Using shell: /bin/bash
+Provided cores: 12
+Rules claiming more threads will be scaled down.
+Job counts:
+	count	jobs
+	1	all
+	47	run
+	48
+
+[Sat Jun 12 17:27:42 2021]
+rule run:
+    output: 10048_1/10048_1/m8/Omega0/out
+    jobid: 27
+    wildcards: od=10048_1/10048_1/m8/Omega0
+
+
+[Sat Jun 12 17:27:42 2021]
+rule run:
+    output: 10048_1/10048_1_dendrobatoidea/modelA/Omega2/out
+    jobid: 4
+    wildcards: od=10048_1/10048_1_dendrobatoidea/modelA/Omega2
+
+
+[Sat Jun 12 17:27:42 2021]
+rule run:
+    output: 10048_1/10048_1_dendrobatidae/modelA/Omega10/out
+    jobid: 12
+    wildcards: od=10048_1/10048_1_dendrobatidae/modelA/Omega10
+
+
+[Sat Jun 12 17:27:42 2021]
+rule run:
+    output: 10048_1/10048_1/m7/Omega2/out
+    jobid: 34
+    wildcards: od=10048_1/10048_1/m7/Omega2
+
+
+[Sat Jun 12 17:27:42 2021]
+rule run:
+    output: 10048_1/10048_1/m3Discrtk3/Omega0/out
+    jobid: 19
+    wildcards: od=10048_1/10048_1/m3Discrtk3/Omega0
+
+
+[Sat Jun 12 17:27:42 2021]
+rule run:
+    output: 10048_1/10048_1/m1Neutral/Omega2/out
+    jobid: 42
+    wildcards: od=10048_1/10048_1/m1Neutral/Omega2
+
+
+[Sat Jun 12 17:27:42 2021]
+rule run:
+    output: 10048_1/10048_1_dendrobatoidea/2ratios/Omega0/out
+    jobid: 5
+    wildcards: od=10048_1/10048_1_dendrobatoidea/2ratios/Omega0
+
+
+[Sat Jun 12 17:27:42 2021]
+rule run:
+    output: 10048_1/10048_1_dendrobatidae/modelA/Omega2/out
+    jobid: 13
+    wildcards: od=10048_1/10048_1_dendrobatidae/modelA/Omega2
+
+
+[Sat Jun 12 17:27:42 2021]
+rule run:
+    output: 10048_1/10048_1/m3Discrtk3/Omega1/out
+    jobid: 20
+    wildcards: od=10048_1/10048_1/m3Discrtk3/Omega1
+
+
+[Sat Jun 12 17:27:42 2021]
+rule run:
+    output: 10048_1/10048_1/m8/Omega1/out
+    jobid: 28
+    wildcards: od=10048_1/10048_1/m8/Omega1
+
+
+[Sat Jun 12 17:27:42 2021]
+rule run:
+    output: 10048_1/10048_1/m0/Omega0/out
+    jobid: 35
+    wildcards: od=10048_1/10048_1/m0/Omega0
+
+
+[Sat Jun 12 17:27:42 2021]
+rule run:
+    output: 10048_1/10048_1/m2Selection/Omega0/out
+    jobid: 43
+    wildcards: od=10048_1/10048_1/m2Selection/Omega0
+
+[Sat Jun 12 17:27:43 2021]
+Finished job 5.
+1 of 48 steps (2%) done
+
+[Sat Jun 12 17:27:43 2021]
+rule run:
+    output: 10048_1/10048_1_dendrobatoidea/modelA/Omega0/out
+    jobid: 1
+    wildcards: od=10048_1/10048_1_dendrobatoidea/modelA/Omega0
+
+[Sat Jun 12 17:27:59 2021]
+Finished job 42.
+2 of 48 steps (4%) done
+
+[Sat Jun 12 17:27:59 2021]
+rule run:
+    output: 10048_1/10048_1/m8/Omega10/out
+    jobid: 29
+    wildcards: od=10048_1/10048_1/m8/Omega10
+
+[Sat Jun 12 17:28:01 2021]
+Finished job 35.
+3 of 48 steps (6%) done
+
+[Sat Jun 12 17:28:01 2021]
+rule run:
+    output: 10048_1/10048_1_dendrobatidae/2ratios/Omega0/out
+    jobid: 14
+    wildcards: od=10048_1/10048_1_dendrobatidae/2ratios/Omega0
+
+[Sat Jun 12 17:28:15 2021]
+Finished job 43.
+4 of 48 steps (8%) done
+
+[Sat Jun 12 17:28:15 2021]
+rule run:
+    output: 10048_1/10048_1/m0/Omega1/out
+    jobid: 36
+    wildcards: od=10048_1/10048_1/m0/Omega1
+
+[Sat Jun 12 17:28:24 2021]
+Finished job 36.
+5 of 48 steps (10%) done
+
+[Sat Jun 12 17:28:24 2021]
+rule run:
+    output: 10048_1/10048_1/m2Selection/Omega1/out
+    jobid: 44
+    wildcards: od=10048_1/10048_1/m2Selection/Omega1
+
+[Sat Jun 12 17:28:33 2021]
+Finished job 20.
+6 of 48 steps (12%) done
+
+[Sat Jun 12 17:28:33 2021]
+rule run:
+    output: 10048_1/10048_1_dendrobatoidea/2ratios/Omega1/out
+    jobid: 6
+    wildcards: od=10048_1/10048_1_dendrobatoidea/2ratios/Omega1
+
+[Sat Jun 12 17:28:38 2021]
+Finished job 14.
+7 of 48 steps (15%) done
+
+[Sat Jun 12 17:28:38 2021]
+rule run:
+    output: 10048_1/10048_1/m3Discrtk3/Omega10/out
+    jobid: 21
+    wildcards: od=10048_1/10048_1/m3Discrtk3/Omega10
+
+[Sat Jun 12 17:28:42 2021]
+Finished job 6.
+8 of 48 steps (17%) done
+
+[Sat Jun 12 17:28:42 2021]
+rule run:
+    output: 10048_1/10048_1/m8/Omega2/out
+    jobid: 30
+    wildcards: od=10048_1/10048_1/m8/Omega2
+
+[Sat Jun 12 17:28:46 2021]
+Finished job 4.
+9 of 48 steps (19%) done
+
+[Sat Jun 12 17:28:46 2021]
+rule run:
+    output: 10048_1/10048_1/m2Selection/Omega10/out
+    jobid: 45
+    wildcards: od=10048_1/10048_1/m2Selection/Omega10
+
+[Sat Jun 12 17:28:52 2021]
+Finished job 1.
+10 of 48 steps (21%) done
+
+[Sat Jun 12 17:28:52 2021]
+rule run:
+    output: 10048_1/10048_1_dendrobatidae/2ratios/Omega1/out
+    jobid: 15
+    wildcards: od=10048_1/10048_1_dendrobatidae/2ratios/Omega1
+
+[Sat Jun 12 17:28:53 2021]
+Finished job 12.
+11 of 48 steps (23%) done
+
+[Sat Jun 12 17:28:53 2021]
+rule run:
+    output: 10048_1/10048_1_dendrobatoidea/2ratios/Omega10/out
+    jobid: 7
+    wildcards: od=10048_1/10048_1_dendrobatoidea/2ratios/Omega10
+
+[Sat Jun 12 17:28:59 2021]
+Finished job 13.
+12 of 48 steps (25%) done
+
+[Sat Jun 12 17:28:59 2021]
+rule run:
+    output: 10048_1/10048_1/m3Discrtk3/Omega2/out
+    jobid: 22
+    wildcards: od=10048_1/10048_1/m3Discrtk3/Omega2
+
+[Sat Jun 12 17:29:01 2021]
+Finished job 44.
+13 of 48 steps (27%) done
+
+[Sat Jun 12 17:29:01 2021]
+rule run:
+    output: 10048_1/10048_1/m0/Omega10/out
+    jobid: 37
+    wildcards: od=10048_1/10048_1/m0/Omega10
+
+[Sat Jun 12 17:29:05 2021]
+Finished job 15.
+14 of 48 steps (29%) done
+
+[Sat Jun 12 17:29:05 2021]
+rule run:
+    output: 10048_1/10048_1/m7/Omega0/out
+    jobid: 31
+    wildcards: od=10048_1/10048_1/m7/Omega0
+
+[Sat Jun 12 17:29:17 2021]
+Finished job 37.
+15 of 48 steps (31%) done
+
+[Sat Jun 12 17:29:17 2021]
+rule run:
+    output: 10048_1/10048_1/m2Selection/Omega2/out
+    jobid: 46
+    wildcards: od=10048_1/10048_1/m2Selection/Omega2
+
+[Sat Jun 12 17:29:18 2021]
+Finished job 7.
+16 of 48 steps (33%) done
+
+[Sat Jun 12 17:29:18 2021]
+rule run:
+    output: 10048_1/10048_1_dendrobatidae/2ratios/Omega10/out
+    jobid: 16
+    wildcards: od=10048_1/10048_1_dendrobatidae/2ratios/Omega10
+
+[Sat Jun 12 17:29:28 2021]
+Finished job 34.
+17 of 48 steps (35%) done
+
+[Sat Jun 12 17:29:28 2021]
+rule run:
+    output: 10048_1/10048_1/m0/Omega2/out
+    jobid: 38
+    wildcards: od=10048_1/10048_1/m0/Omega2
+
+[Sat Jun 12 17:29:36 2021]
+Finished job 38.
+18 of 48 steps (38%) done
+
+[Sat Jun 12 17:29:36 2021]
+rule run:
+    output: 10048_1/10048_1_dendrobatoidea/2ratios/Omega2/out
+    jobid: 8
+    wildcards: od=10048_1/10048_1_dendrobatoidea/2ratios/Omega2
+
+[Sat Jun 12 17:29:47 2021]
+Finished job 8.
+19 of 48 steps (40%) done
+
+[Sat Jun 12 17:29:47 2021]
+rule run:
+    output: 10048_1/10048_1/m3Discrtk2/Omega0/out
+    jobid: 23
+    wildcards: od=10048_1/10048_1/m3Discrtk2/Omega0
+
+[Sat Jun 12 17:29:48 2021]
+Finished job 16.
+20 of 48 steps (42%) done
+
+[Sat Jun 12 17:29:48 2021]
+rule run:
+    output: 10048_1/10048_1_dendrobatoidea/modelA/Omega10/out
+    jobid: 3
+    wildcards: od=10048_1/10048_1_dendrobatoidea/modelA/Omega10
+
+[Sat Jun 12 17:29:55 2021]
+Finished job 22.
+21 of 48 steps (44%) done
+
+[Sat Jun 12 17:29:55 2021]
+rule run:
+    output: 10048_1/10048_1_dendrobatidae/modelA/Omega0/out
+    jobid: 10
+    wildcards: od=10048_1/10048_1_dendrobatidae/modelA/Omega0
+
+[Sat Jun 12 17:30:00 2021]
+Finished job 46.
+22 of 48 steps (46%) done
+
+[Sat Jun 12 17:30:00 2021]
+rule run:
+    output: 10048_1/10048_1_dendrobatidae/modelAnull/Omega1/out
+    jobid: 18
+    wildcards: od=10048_1/10048_1_dendrobatidae/modelAnull/Omega1
+
+[Sat Jun 12 17:30:13 2021]
+Finished job 28.
+23 of 48 steps (48%) done
+
+[Sat Jun 12 17:30:13 2021]
+rule run:
+    output: 10048_1/10048_1/m3Discrtk2/Omega10/out
+    jobid: 25
+    wildcards: od=10048_1/10048_1/m3Discrtk2/Omega10
+
+[Sat Jun 12 17:30:24 2021]
+Finished job 27.
+24 of 48 steps (50%) done
+
+[Sat Jun 12 17:30:24 2021]
+rule run:
+    output: 10048_1/10048_1/m7/Omega10/out
+    jobid: 33
+    wildcards: od=10048_1/10048_1/m7/Omega10
+
+[Sat Jun 12 17:30:27 2021]
+Finished job 45.
+25 of 48 steps (52%) done
+
+[Sat Jun 12 17:30:27 2021]
+rule run:
+    output: 10048_1/10048_1/m1Neutral/Omega1/out
+    jobid: 40
+    wildcards: od=10048_1/10048_1/m1Neutral/Omega1
+
+[Sat Jun 12 17:30:28 2021]
+Finished job 23.
+26 of 48 steps (54%) done
+
+[Sat Jun 12 17:30:28 2021]
+rule run:
+    output: 10048_1/10048_1/m7/Omega1/out
+    jobid: 32
+    wildcards: od=10048_1/10048_1/m7/Omega1
+
+[Sat Jun 12 17:30:46 2021]
+Finished job 40.
+27 of 48 steps (56%) done
+
+[Sat Jun 12 17:30:46 2021]
+rule run:
+    output: 10048_1/10048_1/m1Neutral/Omega0/out
+    jobid: 39
+    wildcards: od=10048_1/10048_1/m1Neutral/Omega0
+
+[Sat Jun 12 17:30:59 2021]
+Finished job 3.
+28 of 48 steps (58%) done
+
+[Sat Jun 12 17:30:59 2021]
+rule run:
+    output: 10048_1/10048_1/m8a/Omega1/out
+    jobid: 47
+    wildcards: od=10048_1/10048_1/m8a/Omega1
+
+[Sat Jun 12 17:31:00 2021]
+Finished job 31.
+29 of 48 steps (60%) done
+
+[Sat Jun 12 17:31:00 2021]
+rule run:
+    output: 10048_1/10048_1_dendrobatidae/modelA/Omega1/out
+    jobid: 11
+    wildcards: od=10048_1/10048_1_dendrobatidae/modelA/Omega1
+
+[Sat Jun 12 17:31:02 2021]
+Finished job 25.
+30 of 48 steps (62%) done
+
+[Sat Jun 12 17:31:02 2021]
+rule run:
+    output: 10048_1/10048_1/m3Discrtk2/Omega2/out
+    jobid: 26
+    wildcards: od=10048_1/10048_1/m3Discrtk2/Omega2
+
+[Sat Jun 12 17:31:04 2021]
+Finished job 39.
+31 of 48 steps (65%) done
+
+[Sat Jun 12 17:31:04 2021]
+rule run:
+    output: 10048_1/10048_1/m1Neutral/Omega10/out
+    jobid: 41
+    wildcards: od=10048_1/10048_1/m1Neutral/Omega10
+
+[Sat Jun 12 17:31:07 2021]
+Finished job 21.
+32 of 48 steps (67%) done
+
+[Sat Jun 12 17:31:07 2021]
+rule run:
+    output: 10048_1/10048_1_dendrobatidae/2ratios/Omega2/out
+    jobid: 17
+    wildcards: od=10048_1/10048_1_dendrobatidae/2ratios/Omega2
+
+[Sat Jun 12 17:31:12 2021]
+Finished job 10.
+33 of 48 steps (69%) done
+
+[Sat Jun 12 17:31:12 2021]
+rule run:
+    output: 10048_1/10048_1/m3Discrtk2/Omega1/out
+    jobid: 24
+    wildcards: od=10048_1/10048_1/m3Discrtk2/Omega1
+
+[Sat Jun 12 17:31:18 2021]
+Finished job 18.
+34 of 48 steps (71%) done
+
+[Sat Jun 12 17:31:18 2021]
+rule run:
+    output: 10048_1/10048_1_dendrobatoidea/modelA/Omega1/out
+    jobid: 2
+    wildcards: od=10048_1/10048_1_dendrobatoidea/modelA/Omega1
+
+[Sat Jun 12 17:31:19 2021]
+Finished job 17.
+35 of 48 steps (73%) done
+
+[Sat Jun 12 17:31:19 2021]
+rule run:
+    output: 10048_1/10048_1_dendrobatoidea/modelAnull/Omega1/out
+    jobid: 9
+    wildcards: od=10048_1/10048_1_dendrobatoidea/modelAnull/Omega1
+
+[Sat Jun 12 17:31:21 2021]
+Finished job 41.
+36 of 48 steps (75%) done
+[Sat Jun 12 17:31:25 2021]
+Finished job 26.
+37 of 48 steps (77%) done
+[Sat Jun 12 17:31:34 2021]
+Finished job 24.
+38 of 48 steps (79%) done
+[Sat Jun 12 17:31:35 2021]
+Finished job 30.
+39 of 48 steps (81%) done
+[Sat Jun 12 17:31:55 2021]
+Finished job 32.
+40 of 48 steps (83%) done
+[Sat Jun 12 17:32:00 2021]
+Finished job 33.
+41 of 48 steps (85%) done
+[Sat Jun 12 17:32:09 2021]
+Finished job 9.
+42 of 48 steps (88%) done
+[Sat Jun 12 17:32:13 2021]
+Finished job 11.
+43 of 48 steps (90%) done
+[Sat Jun 12 17:32:35 2021]
+Finished job 47.
+44 of 48 steps (92%) done
+[Sat Jun 12 17:32:44 2021]
+Finished job 29.
+45 of 48 steps (94%) done
+[Sat Jun 12 17:32:52 2021]
+Finished job 2.
+46 of 48 steps (96%) done
+[Sat Jun 12 17:33:56 2021]
+Finished job 19.
+47 of 48 steps (98%) done
+
+[Sat Jun 12 17:33:56 2021]
+localrule all:
+    input: 10048_1/10048_1_dendrobatoidea/modelA/Omega0/out, 10048_1/10048_1_dendrobatoidea/modelA/Omega1/out, 10048_1/10048_1_dendrobatoidea/modelA/Omega10/out, 10048_1/10048_1_dendrobatoidea/modelA/Omega2/out, 10048_1/10048_1_dendrobatoidea/2ratios/Omega0/out, 10048_1/10048_1_dendrobatoidea/2ratios/Omega1/out, 10048_1/10048_1_dendrobatoidea/2ratios/Omega10/out, 10048_1/10048_1_dendrobatoidea/2ratios/Omega2/out, 10048_1/10048_1_dendrobatoidea/modelAnull/Omega1/out, 10048_1/10048_1_dendrobatidae/modelA/Omega0/out, 10048_1/10048_1_dendrobatidae/modelA/Omega1/out, 10048_1/10048_1_dendrobatidae/modelA/Omega10/out, 10048_1/10048_1_dendrobatidae/modelA/Omega2/out, 10048_1/10048_1_dendrobatidae/2ratios/Omega0/out, 10048_1/10048_1_dendrobatidae/2ratios/Omega1/out, 10048_1/10048_1_dendrobatidae/2ratios/Omega10/out, 10048_1/10048_1_dendrobatidae/2ratios/Omega2/out, 10048_1/10048_1_dendrobatidae/modelAnull/Omega1/out, 10048_1/10048_1/m3Discrtk3/Omega0/out, 10048_1/10048_1/m3Discrtk3/Omega1/out, 10048_1/10048_1/m3Discrtk3/Omega10/out, 10048_1/10048_1/m3Discrtk3/Omega2/out, 10048_1/10048_1/m3Discrtk2/Omega0/out, 10048_1/10048_1/m3Discrtk2/Omega1/out, 10048_1/10048_1/m3Discrtk2/Omega10/out, 10048_1/10048_1/m3Discrtk2/Omega2/out, 10048_1/10048_1/m8/Omega0/out, 10048_1/10048_1/m8/Omega1/out, 10048_1/10048_1/m8/Omega10/out, 10048_1/10048_1/m8/Omega2/out, 10048_1/10048_1/m7/Omega0/out, 10048_1/10048_1/m7/Omega1/out, 10048_1/10048_1/m7/Omega10/out, 10048_1/10048_1/m7/Omega2/out, 10048_1/10048_1/m0/Omega0/out, 10048_1/10048_1/m0/Omega1/out, 10048_1/10048_1/m0/Omega10/out, 10048_1/10048_1/m0/Omega2/out, 10048_1/10048_1/m1Neutral/Omega0/out, 10048_1/10048_1/m1Neutral/Omega1/out, 10048_1/10048_1/m1Neutral/Omega10/out, 10048_1/10048_1/m1Neutral/Omega2/out, 10048_1/10048_1/m2Selection/Omega0/out, 10048_1/10048_1/m2Selection/Omega1/out, 10048_1/10048_1/m2Selection/Omega10/out, 10048_1/10048_1/m2Selection/Omega2/out, 10048_1/10048_1/m8a/Omega1/out
+    jobid: 0
+
+[Sat Jun 12 17:33:56 2021]
+Finished job 0.
+48 of 48 steps (100%) done
+Complete log: /Users/bede/Research/Tools/vespasian/2ratios/test/codeml/.snakemake/log/2021-06-12T172742.193326.snakemake.log

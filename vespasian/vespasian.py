@@ -258,11 +258,13 @@ def setup_branch_site_models(family_name, family_path, alignment_path, gene_tree
     models = {
         'modelA': {'model': 2, 'NSsites': 2, 'fix_omega': 0, 'ncatG': 10},
         'modelAnull': {'model': 2, 'NSsites': 2, 'fix_omega': 1, 'ncatG': 10},
+        '2ratios': {'model': 2, 'NSsites': 0, 'fix_omega': 0, 'ncatG': 10}
     }
 
     models_omega = {
         'modelA': [0, 1, 2, 10],
-        'modelAnull': [1]
+        'modelAnull': [1],
+        '2ratios': [0, 1, 2, 10]
     }
 
     alignment = list(AlignIO.parse(alignment_path, 'fasta'))

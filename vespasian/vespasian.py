@@ -18,7 +18,7 @@ import numpy as np
 import pandas as pd
 
 from Bio import AlignIO, SeqIO
-from scipy.stats import chi2
+from scipy.stats import chi2, chisquare
 
 from vespasian import util
 
@@ -577,14 +577,14 @@ def lrt(null_lnl, alt_lnl):
 def generate_lrt_table(family_results):
     '''Returns dataframe of likelihood ratio tests for a family's model results'''
  
-    site_lrts = {('m0', 'm3Discrtk2'): {'ddof': 2, 'cv': 5.991},
-                 ('m1Neutral', 'm2Selection'): {'ddof': 2, 'cv': 5.991},
-                 ('m3Discrtk2', 'm3Discrtk3'): {'ddof': 0, 'cv': 1.000},
-                 ('m7', 'm8'): {'ddof': 2, 'cv': 5.991},
-                 ('m8a', 'm8'): {'ddof': 2, 'cv': 2.706}}
+    site_lrts = {('m0', 'm3Discrtk2'): {'ddof': 2},
+                 ('m1Neutral', 'm2Selection'): {'ddof': 2},
+                 ('m3Discrtk2', 'm3Discrtk3'): {'ddof': 0},  # Special case, simply pick highest likelihood
+                 ('m7', 'm8'): {'ddof': 2},
+                 ('m8a', 'm8'): {'ddof': 2}}
 
-    branch_site_lrts = {('m1Neutral', 'modelA'): {'ddof': 2, 'cv': 5.991},
-                        ('modelAnull', 'modelA'): {'ddof': 2, 'cv': 3.841}}
+    branch_site_lrts = {('m1Neutral', 'modelA'): {'ddof': 2},
+                        ('modelAnull', 'modelA'): {'ddof': 1}}
     
     families_branches = {(r[:2]) for r in family_results.keys()}
 
@@ -595,16 +595,19 @@ def generate_lrt_table(family_results):
                 null_lnl = family_results[(family, tree, null)]['lnl']
                 alt_lnl = family_results[(family, tree, alt)]['lnl']
                 lrt_ts = lrt(null_lnl, alt_lnl)
+                p_value = chi2.sf(lrt_ts, meta['ddof']) if lrt_ts > 0 else None
+                critical_value = chi2.ppf(1-5e-2, df=meta['ddof'])  # 3.841458820694124, 5.991464547107979 etc
+                null_rejected = True if lrt_ts > critical_value else False
                 lrt_record= dict(
                     tree=tree,
                     null_model=null,
                     alt_model=alt,
                     null_lnl=null_lnl,
                     alt_lnl=alt_lnl,
-                    lrt=lrt_ts/2 if null == 'm3Discrtk2' else lrt_ts,
-                    critical_value=meta['cv'],
-                    p='' if null == 'm3Discrtk2' else chi2.sf(lrt_ts, meta['ddof']),
-                    null_rejected=True if lrt_ts > meta['cv'] else False)
+                    lrt=lrt_ts,
+                    p=p_value,
+                    critical_value=critical_value,
+                    null_rejected=null_rejected)
                 lrt_records.append(lrt_record)
 
         else:  # Branch-site models
@@ -615,6 +618,9 @@ def generate_lrt_table(family_results):
                     null_lnl = family_results[(family, tree, null)]['lnl']
                 alt_lnl = family_results[(family, tree, alt)]['lnl']
                 lrt_ts = lrt(null_lnl, alt_lnl)
+                p_value = chi2.sf(lrt_ts, meta['ddof']) if lrt_ts > 0 else None
+                critical_value = chi2.ppf(1-5e-2, df=meta['ddof'])
+                null_rejected = True if lrt_ts > critical_value else False
                 lrt_record= dict(
                     tree=tree,
                     null_model=null,
@@ -622,9 +628,9 @@ def generate_lrt_table(family_results):
                     null_lnl=null_lnl,
                     alt_lnl=alt_lnl,
                     lrt=lrt_ts,
-                    critical_value=meta['cv'],
-                    p=chi2.sf(lrt_ts, meta['ddof']),
-                    null_rejected=True if lrt_ts > meta['cv'] else False)
+                    p=p_value,
+                    critical_value=critical_value,
+                    null_rejected=null_rejected)
                 lrt_records.append(lrt_record)
 
     df = pd.DataFrame(lrt_records)

@@ -396,7 +396,7 @@ def gather_codeml_output(path):
 def parse_result(path):
     '''
     Parse codeml output
-    Yes this is a horribly complex function – blame Ziheng
+    Yes this is a horribly complex function – blame Ziheng
     '''
     record = path.split('/')[-5:-1]
     
@@ -519,6 +519,7 @@ def parse_result(path):
         raise(e)
 
     result['params'] = params
+
     return result
 
 
@@ -584,7 +585,8 @@ def generate_lrt_table(family_results):
                  ('m8a', 'm8'): {'ddof': 2}}
 
     branch_site_lrts = {('m1Neutral', 'modelA'): {'ddof': 2},
-                        ('modelAnull', 'modelA'): {'ddof': 1}}
+                        ('modelAnull', 'modelA'): {'ddof': 1},
+                        ('m0', '2ratios'): {'ddof': 1}}
     
     families_branches = {(r[:2]) for r in family_results.keys()}
 
@@ -612,7 +614,7 @@ def generate_lrt_table(family_results):
 
         else:  # Branch-site models
             for (null, alt), meta in branch_site_lrts.items():
-                if null == 'm1Neutral':  # m1Neutral is a site model
+                if null == 'm1Neutral' or null == 'm0':  # m1Neutral is a site model
                     null_lnl = family_results[(family, family, null)]['lnl']
                 else:
                     null_lnl = family_results[(family, tree, null)]['lnl']

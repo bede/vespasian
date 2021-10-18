@@ -580,7 +580,7 @@ def generate_lrt_table(family_results):
  
     site_lrts = {('m0', 'm3Discrtk2'): {'ddof': 2},
                  ('m1Neutral', 'm2Selection'): {'ddof': 2},
-                 ('m3Discrtk2', 'm3Discrtk3'): {'ddof': 0},  # Special case, simply pick highest likelihood
+                 ('m3Discrtk2', 'm3Discrtk3'): {'ddof': 0},  # Special case, critical value = 0
                  ('m7', 'm8'): {'ddof': 2},
                  ('m8a', 'm8'): {'ddof': 2}}
 
@@ -598,7 +598,7 @@ def generate_lrt_table(family_results):
                 alt_lnl = family_results[(family, tree, alt)]['lnl']
                 lrt_ts = lrt(null_lnl, alt_lnl)
                 p_value = chi2.sf(lrt_ts, meta['ddof']) if lrt_ts > 0 else None
-                critical_value = chi2.ppf(1-5e-2, df=meta['ddof'])  # 3.841458820694124, 5.991464547107979 etc
+                critical_value = chi2.ppf(1-5e-2, df=meta['ddof']) or 1.0 if meta['ddof'] == 0  # 3.84, 5.99 etc.
                 null_rejected = True if lrt_ts > critical_value else False
                 lrt_record= dict(
                     tree=tree,

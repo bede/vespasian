@@ -598,7 +598,7 @@ def generate_lrt_table(family_results):
                 alt_lnl = family_results[(family, tree, alt)]['lnl']
                 lrt_ts = lrt(null_lnl, alt_lnl)
                 p_value = chi2.sf(lrt_ts, meta['ddof']) if lrt_ts > 0 else None
-                critical_value = chi2.ppf(1-5e-2, df=meta['ddof']) or 1.0 if meta['ddof'] == 0  # 3.84, 5.99 etc.
+                critical_value = chi2.ppf(1-5e-2, df=meta['ddof']) if meta['ddof'] else 0  # 3.84, 5.99 etc.
                 null_rejected = True if lrt_ts > critical_value else False
                 lrt_record= dict(
                     tree=tree,

@@ -1,0 +1,25 @@
+cff-version: 1.2.0
+message: If you use this software, please cite it using these metadata.
+title: "Vespasian: genome scale detection of selective pressure variation"
+abstract: "Vespasian performs genome scale detection of site and branch-site signatures of positive selection by orchestrating evolutionary hypothesis tests with PAML. Given a collection of alignments of protein-coding orthologous gene families and labelled trees, Vespasian infers gene trees from a species tree and evaluates site and lineage-specific models of evolution."
+authors:
+  - family-names: Constantinides
+    given-names: Bede
+    orcid: "https://orcid.org/0000-0002-3480-3819"
+  - family-names: Orr
+    given-names: David
+  - family-names: Ovchinnikov
+    given-names: Vladimir
+    orcid: "https://orcid.org/0000-0003-0350-8478"
+  - family-names: Mulhair
+    given-names: Peter
+    orcid: "https://orcid.org/0000-0003-3311-4883"
+  - family-names: Webb
+    given-names: Andrew E
+  - family-names: O'Connell
+    given-names: Mary J
+    orcid: "https://orcid.org/0000-0002-1877-1001"
+version: 0.5.2
+date-released: "2021-12-10"
+license: GPL-3.0
+repository-code: "https://github.com/bede/vespasian"

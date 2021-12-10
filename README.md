@@ -4,7 +4,7 @@
 
 # Vespasian
 
-Vespasian performs genome scale detection of site and branch-site signatures of positive selection by orchestrating the execution and parsing of evolutionary hypothesis tests with PAML. Given a collection of alignments of protein-coding orthologous gene families and labelled trees, Vespasian infers gene trees from a species tree and evaluates site and lineage-specific models of evolution using PAML. Model testing is CPU-intensive but embarrassingly parallel, and can be executed on one or many machines with [snakemake](https://github.com/snakemake/snakemake). Vespasian is the pure Python successor to [VESPA](https://peerj.com/articles/cs-118/) by Webb et al. (2017).
+Vespasian performs genome scale detection of site and branch-site signatures of positive selection by orchestrating evolutionary hypothesis tests with PAML. Given a collection of alignments of protein-coding orthologous gene families and labelled trees, Vespasian infers gene trees from a species tree and evaluates site and lineage-specific models of evolution. Model testing is CPU-intensive but embarrassingly parallel, and can be executed on one or many machines with [snakemake](https://github.com/snakemake/snakemake). Vespasian is the pure Python successor to [VESPA](https://peerj.com/articles/cs-118/) by Webb et al. (2017).
 
 
 
@@ -186,10 +186,8 @@ optional arguments:
 ### Todo
 
 - [ ] Positively selected site visualisation
-- [ ] IQ-TREE / ParGenes integration
 - [ ] Python API
-- [ ] Specify site and/or branch-site models
+- [ ] Specify site and/or branch-site models only
 - [ ] Renaming:
   - [ ] `infer-gene-trees` -> `infer-trees`
-- [ ] Choice of range of omega values
-- [ ] Benjamini-Hochberg correction of multiple tests
+- [ ] Consider B-H correction

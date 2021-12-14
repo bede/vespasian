@@ -19,7 +19,12 @@ authors:
   - family-names: O'Connell
     given-names: Mary J
     orcid: "https://orcid.org/0000-0002-1877-1001"
-version: 0.5.2
-date-released: "2021-12-10"
+version: 0.5.3
+date-released: "2021-12-14"
+identifiers:
+  - description: Collection of archived Vespasian versions
+    type: doi
+    value: "10.5281/zenodo.5779868"
+doi: 10.5281/zenodo.5779868
 license: GPL-3.0
 repository-code: "https://github.com/bede/vespasian"

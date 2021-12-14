@@ -1,3 +1,4 @@
+[![DOI](https://zenodo.org/badge/141450954.svg)](https://zenodo.org/badge/latestdoi/141450954)
 [![Tests](https://img.shields.io/github/workflow/status/bede/vespasian/tests)](https://github.com/bede/vespasian/actions)
 [![PyPI](https://img.shields.io/pypi/v/vespasian.svg?color=brightgreen)](https://pypi.org/project/vespasian/)
 

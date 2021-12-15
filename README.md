@@ -152,7 +152,7 @@ e.g. `cd codeml && snakemake --cores 8`
   - SGE example:
       - `snakemake -k --jobs 100 --cluster "qsub -cwd -V" --max-status-checks-per-second 0.1`
       - Oxford Rescomp: `qsub -cwd -V -P bag.prjc -q short.qc`
-      - Profiles [are available for other cluster platforms](https://snakemake.readthedocs.io/en/stable/executable.html#profiles)
+      - Profiles [are available for other cluster platforms](https://github.com/snakemake-profiles)
 
 
 

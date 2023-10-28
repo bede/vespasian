@@ -1,3 +1,0 @@
-vespa infer-gene-trees nucleotide_alignments_small/ sp_tree.nwk
-vespa codeml-setup nucleotide_alignments_small/ gene-trees/ --progress
-vespa.py codeml_reader -input=codeml/ -branch_file=branches.txt -alignment_path=nucleotide_alignments_small/ > codeml_reader.stdout

@@ -11,29 +11,65 @@ Vespasian performs genome scale detection of site and branch-site signatures of 
 
 ## Installation
 
-### With `conda` & `pip`
+### Installing Miniconda
 
-I currently recommend creating a conda environment with `paml` and `datrie`, and letting pip do the rest. PAML output changes subtly between versions, and I have tested against MacOS builds `h01d97ff_5`, `hb4d813b_6` and Linux builds  `h516909a_5`, `h779adbc_6` from [bioconda](https://anaconda.org/bioconda/paml/files).
+If the conda package manager is already installed, skip this step, otherwise:
+
+**Linux**
+
+- Install Miniconda, following instructions and accepting default options:
+
+  ```bash
+  curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh
+  bash Miniconda3-latest-Linux-x86_64.sh
+  ```
+
+**MacOS**
+
+- If your Mac has an Intel processor, skip this step. Otherwise, run:
+
+  ```bash
+  arch -x86_64 zsh
+  ```
+
+- Install Miniconda, following instructions and accepting default options:
+
+  ```bash
+  curl -O https://repo.anaconda.com/miniconda/Miniconda3-latest-MacOSX-x86_64.sh
+  bash Miniconda3-latest-MacOSX-x86_64.sh
+  ```
+
+
+
+### Installing Vespasian
+
+- If your Mac has an Intel processor, skip this step. Otherwise, using Terminal, run:
+
+  ```bash
+  arch -x86_64 zsh
+  ```
+
+- Install Vespasian:
+  ```bash
+  curl -OJ https://raw.githubusercontent.com/bede/vespasian/master/environment.yml
+  conda env create -f environment.yml
+  conda activate vespasian
+  ```
+
+- Test Vespasian:
+  ```bash
+  vespasian version
+  ```
+
+
+
+### Development install
 
 ```bash
-conda create -n vespasian python=3 paml datrie
-conda activate vespasian
-pip install vespasian
-```
-
-### Without `conda`
-
-```bash
-# Install PAML manually
-pip install vespasian
-```
-
-### Development
-
-```bash
-conda create -n vespasian python=3 paml && conda activate vespasian
+conda create -y -n vespasian-dev python=3.11 pytest -c conda-forge -c bioconda paml=4.10.6
+conda activate vespasian-dev
 git clone https://github.com/bede/vespasian
-pip install --editable vespasian
+pip install --editable ./vespasian
 ```
 
 

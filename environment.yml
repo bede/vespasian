@@ -1,0 +1,11 @@
+name: vespasian
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - paml=4.10.6
+  - pip:
+    - vespasian

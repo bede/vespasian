@@ -26,7 +26,9 @@ If the conda package manager is already installed, skip this step, otherwise:
 
 **MacOS**
 
-- If your Mac has an Intel processor, skip this step. Otherwise, run:
+An `x86_64` Miniconda installation is required in order to install Vespasian.
+
+- If your Mac has an Intel processor, skip this step. Otherwise:
 
   ```bash
   arch -x86_64 zsh
@@ -43,7 +45,7 @@ If the conda package manager is already installed, skip this step, otherwise:
 
 ### Installing Vespasian
 
-- If your Mac has an Intel processor, skip this step. Otherwise, using Terminal, run:
+- If using a Mac with an Intel processor, skip this step. Otherwise, run:
 
   ```bash
   arch -x86_64 zsh

@@ -68,7 +68,7 @@ An `x86_64` Miniconda installation is required in order to install Vespasian.
 ### Development install
 
 ```bash
-conda create -y -n vespasian-dev python=3.11 paml==4.10.6 pytest -c conda-forge -c bioconda
+conda create -y -n vespasian-dev python=3.11 paml==4.10.6 pytest black pre-commit -c conda-forge -c bioconda
 conda activate vespasian-dev
 git clone https://github.com/bede/vespasian
 pip install --editable ./vespasian
@@ -136,9 +136,9 @@ e.g. `vespasian codeml-setup --progress --warnings --branches branches.yml input
   - File `codeml-commands.sh` containing list of commands to execute the model tests
   - File `Snakefile` for running the contents of `codeml-commands.sh` locally or using a cluster
 
-  
 
-  N.B. By default, at least two taxa must be present within a given family for a named internal node to be labelled. Use `--strict` to skip named internal nodes unless all child leaf nodes are present. 
+
+  N.B. By default, at least two taxa must be present within a given family for a named internal node to be labelled. Use `--strict` to skip named internal nodes unless all child leaf nodes are present.
 
 ```
 $ vespasian codeml-setup -h
@@ -180,12 +180,12 @@ e.g. `cd codeml && snakemake --cores 8`
 - Ensure `codeml` binary is present inside `$PATH`
 - Using PAML version `4.9=h01d97ff_5` from Conda is recommended
 - `cd codeml` (the directory created by `codeml-setup` in step 2)
-- *Local execution (for small jobs)* 
+- *Local execution (for small jobs)*
   - `snakemake -k --cores 8` (recommended)
   - Or, using GNU parallel (*not* recommended – doesn't catch errors!)
     - `parallel --bar :::: codeml-commands.sh`
 - *Cluster execution*
-  
+
   - `snakemake -k --cores MAXJOBS --cluster OPTIONS`
   - SGE example:
       - `snakemake -k --jobs 100 --cluster "qsub -cwd -V" --max-status-checks-per-second 0.1`

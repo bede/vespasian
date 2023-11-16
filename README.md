@@ -1,5 +1,5 @@
 [![DOI](https://zenodo.org/badge/141450954.svg)](https://zenodo.org/badge/latestdoi/141450954)
-[![Tests](https://img.shields.io/github/workflow/status/bede/vespasian/tests)](https://github.com/bede/vespasian/actions)
+[![Tests](https://img.shields.io/github/actions/workflow/status/bede/vespasian/test.yml?branch=master)](https://github.com/bede/vespasian/actions)
 [![PyPI](https://img.shields.io/pypi/v/vespasian.svg?color=brightgreen)](https://pypi.org/project/vespasian/)
 
 
@@ -66,7 +66,7 @@ If the conda package manager is already installed, skip this step, otherwise:
 ### Development install
 
 ```bash
-conda create -y -n vespasian-dev python=3.11 pytest -c conda-forge -c bioconda paml=4.10.6
+conda create -y -n vespasian-dev python=3.11 paml==4.10.6 pytest -c conda-forge -c bioconda
 conda activate vespasian-dev
 git clone https://github.com/bede/vespasian
 pip install --editable ./vespasian

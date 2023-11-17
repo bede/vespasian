@@ -1,0 +1,38 @@
+[build-system]
+requires = ["flit_core >=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "vespasian"
+authors = [{name = "Bede Constantinides", email = "bedeabc@gmail.com"}]
+license = {file = "LICENSE"}
+readme = "README.md"
+dynamic = ["version", "description"]
+requires-python = ">=3.11"
+dependencies = [
+  "biopython>=1.78",
+  "treeswift==1.1.14",
+  "tqdm",
+  "argh",
+  "pyyaml",
+  "parmap",
+  "snakemake",
+  "pandas>=1.2.4",
+  "numpy>=1.20.2",
+  "scipy>=1.6.2"
+]
+
+[project.scripts]
+vespasian = "vespasian.cli:main"
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.3",
+    "pre-commit>=3.5.0",
+    "ruff>=0.1.5",
+    "flit>=3.9.0"
+]
+
+[tool.ruff]
+# Ignore forward annotation syntax errors and ambiguous variable name
+ignore = ["F722", "E741"]

@@ -3,7 +3,6 @@ import sys
 import warnings
 
 from math import ceil
-from pprint import pprint
 
 import argh
 

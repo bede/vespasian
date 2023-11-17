@@ -28,7 +28,7 @@ If the conda package manager is already installed, skip this step, otherwise:
 
 An `x86_64` Miniconda installation is required in order to install Vespasian.
 
-- If your Mac has an Intel processor, skip this step. Otherwise:
+- If using a Mac with an Intel processor, skip this step. Otherwise:
 
   ```bash
   arch -x86_64 zsh
@@ -45,7 +45,7 @@ An `x86_64` Miniconda installation is required in order to install Vespasian.
 
 ### Installing Vespasian
 
-- If using a Mac with an Intel processor, skip this step. Otherwise, run:
+- If using a Mac has an Intel processor, skip this step. Otherwise:
 
   ```bash
   arch -x86_64 zsh
@@ -68,10 +68,10 @@ An `x86_64` Miniconda installation is required in order to install Vespasian.
 ### Development install
 
 ```bash
-conda create -y -n vespasian-dev python=3.11 paml==4.10.6 pytest black pre-commit -c conda-forge -c bioconda
+conda create -y -n vespasian-dev python=3.11 paml==4.10.6 -c conda-forge -c bioconda
 conda activate vespasian-dev
 git clone https://github.com/bede/vespasian
-pip install --editable ./vespasian
+pip install --editable './vespasian[dev]'
 ```
 
 

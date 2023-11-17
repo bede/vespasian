@@ -7,7 +7,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest]
-        python-version: [3.9, 3.11]
+        python-version: [3.11]
     name: Python ${{ matrix.python-version }} (${{ matrix.os }})
     steps:
       - uses: actions/checkout@v2
@@ -19,10 +19,8 @@ jobs:
           conda-channels: bioconda
       - name: Install
         run: |
-          conda install paml datrie
-          pip install --upgrade pip setuptools wheel
-          pip install pytest
-          pip install .
+          conda env create -f environment.yml
+          pip install '.[dev]'
       - name: Test
         run: |
           pytest -s --slow

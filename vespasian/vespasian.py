@@ -14,11 +14,10 @@ import tqdm
 import parmap
 import treeswift
 
-import numpy as np
 import pandas as pd
 
 from Bio import AlignIO, SeqIO
-from scipy.stats import chi2, chisquare
+from scipy.stats import chi2
 
 from vespasian import util
 
@@ -645,7 +644,6 @@ def filter_results(results):
                 r["model"],
             )  # Tuple-keyed dict of family-tree-model
             # print(key)
-            # pprint(r)
             if r["lnl"] > names_lnls[key]:
                 names_lnls[key] = r["lnl"]
                 names_records[key] = r
